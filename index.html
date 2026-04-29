@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f4efe4">
+<title>タイ語マスター — เรียนภาษาไทย</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/svg+xml" href="./icon.svg">
+<link rel="apple-touch-icon" href="./icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="タイ語マスター">
+<meta name="description" content="日本語話者のためのタイ語学習PWA。初級・中級・上級コースをSRSで効率学習。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&family=Noto+Serif+Thai:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  :root{
+    --bg:#f4efe4;--bg-card:#fdfaf3;--bg-sub:#faf5ea;
+    --ink:#1a1410;--ink-soft:#5a4f42;--ink-muted:#8b7e6d;--ink-faint:#b5a78f;
+    --line:#e2d8c2;--line-soft:#ecdfc8;
+    --accent:#a8391a;--accent-warm:#c86432;--accent-soft:rgba(168,57,26,0.08);
+    --gold:#b8955a;--gold-soft:#d9c89a;--green:#5a7a3a;
+    --shadow-sm:0 1px 2px rgba(26,20,16,0.04);
+    --shadow-md:0 1px 2px rgba(26,20,16,0.03),0 4px 16px rgba(26,20,16,0.04);
+    --shadow-lg:0 2px 4px rgba(26,20,16,0.04),0 12px 32px rgba(26,20,16,0.06);
+  }
+  html{background:var(--bg);}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:'Noto Sans JP',sans-serif;line-height:1.5;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    max-width:480px;margin:0 auto;min-height:100vh;position:relative;overflow-x:hidden;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;max-width:480px;margin:0 auto;
+    background-image:radial-gradient(circle at 20% 10%,rgba(184,149,90,0.04) 0%,transparent 40%),
+      radial-gradient(circle at 85% 70%,rgba(168,57,26,0.03) 0%,transparent 45%);
+    pointer-events:none;z-index:0;
+  }
+  .app{position:relative;z-index:1;}
+
+  .screen{display:none;animation:fadeIn .35s ease;min-height:100vh;padding-bottom:80px;}
+  .screen.active{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  /* TOP BAR */
+  .top-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px 12px;background:var(--bg);
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .top-bar .left{display:flex;align-items:center;gap:10px;}
+  .back-btn{
+    width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+    background:transparent;border:none;cursor:pointer;color:var(--ink);border-radius:50%;
+    transition:background .2s;
+  }
+  .back-btn:active{background:var(--accent-soft);}
+  .back-btn svg{width:16px;height:16px;}
+  .top-title{font-family:'Shippori Mincho',serif;font-size:14px;font-weight:600;letter-spacing:.1em;}
+  .top-title .thai{font-family:'Noto Serif Thai',serif;color:var(--accent);font-size:11px;margin-top:1px;display:block;letter-spacing:.05em;font-weight:500;}
+  .top-meta{font-size:11px;color:var(--ink-muted);letter-spacing:.1em;}
+
+  /* HOME */
+  .home-header{padding:32px 24px 20px;text-align:center;}
+  .home-header .mark{display:inline-flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .home-header .mark span{display:block;width:20px;height:1px;background:var(--gold);}
+  .home-header .mark .thai-mini{font-family:'Noto Serif Thai',serif;font-weight:500;font-size:11px;color:var(--gold);letter-spacing:.25em;text-transform:uppercase;}
+  .home-header h1{font-family:'Shippori Mincho',serif;font-weight:600;font-size:28px;letter-spacing:.1em;margin-bottom:8px;}
+  .home-header .thai-title{font-family:'Noto Serif Thai',serif;font-weight:400;font-size:16px;color:var(--accent);letter-spacing:.05em;margin-bottom:10px;}
+  .home-header .subtitle{font-size:10px;color:var(--ink-muted);letter-spacing:.3em;text-transform:uppercase;}
+
+  .stats-bar{
+    margin:4px 16px 24px;padding:16px 20px;background:var(--bg-card);
+    border:1px solid var(--line);border-radius:6px;
+    display:flex;justify-content:space-around;box-shadow:var(--shadow-sm);
+  }
+  .stat-item{text-align:center;}
+  .stat-num{font-family:'Shippori Mincho',serif;font-size:22px;font-weight:600;color:var(--accent);line-height:1;}
+  .stat-label{font-size:10px;color:var(--ink-muted);letter-spacing:.15em;margin-top:6px;}
+
+  .section-title{
+    padding:8px 24px 14px;font-family:'Shippori Mincho',serif;
+    font-size:13px;font-weight:600;letter-spacing:.2em;color:var(--ink);
+    display:flex;align-items:center;gap:12px;
+  }
+  .section-title::before{content:'';width:16px;height:1px;background:var(--accent);}
+
+  /* COURSE CARDS */
+  .courses{padding:0 16px;}
+  .course-card{
+    display:block;width:100%;background:var(--bg-card);border:1px solid var(--line);
+    border-radius:8px;padding:22px 22px 20px;margin-bottom:14px;text-align:left;cursor:pointer;
+    box-shadow:var(--shadow-md);position:relative;overflow:hidden;
+    transition:transform .2s,box-shadow .2s;
+  }
+  .course-card:active{transform:scale(.99);}
+  .course-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ribbon);
+  }
+  .course-card.beginner{--ribbon:linear-gradient(to right,#b8955a,#d9c89a);}
+  .course-card.intermediate{--ribbon:linear-gradient(to right,#c86432,#e88e5a);}
+  .course-card.advanced{--ribbon:linear-gradient(to right,#a8391a,#6b2010);}
+
+  .course-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+  .course-level{font-family:'Shippori Mincho',serif;font-size:22px;font-weight:600;letter-spacing:.1em;}
+  .course-thai{font-family:'Noto Serif Thai',serif;font-size:14px;color:var(--accent);margin-top:4px;font-weight:500;}
+  .course-num{font-family:'Shippori Mincho',serif;font-size:11px;color:var(--gold);letter-spacing:.2em;}
+  .course-desc{font-size:13px;color:var(--ink-soft);margin-bottom:16px;letter-spacing:.04em;}
+
+  .progress-row{display:flex;align-items:center;gap:12px;}
+  .progress-track{flex:1;height:4px;background:var(--line-soft);border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s ease;}
+  .progress-text{font-size:11px;color:var(--ink-soft);letter-spacing:.05em;font-variant-numeric:tabular-nums;min-width:56px;text-align:right;}
+
+  /* UNIT LIST */
+  .course-banner{padding:24px 24px 20px;text-align:center;border-bottom:1px solid var(--line);margin-bottom:8px;}
+  .course-banner .label{font-size:10px;letter-spacing:.3em;color:var(--gold);margin-bottom:8px;text-transform:uppercase;}
+  .course-banner h2{font-family:'Shippori Mincho',serif;font-size:24px;font-weight:600;letter-spacing:.12em;margin-bottom:6px;}
+  .course-banner .thai{font-family:'Noto Serif Thai',serif;color:var(--accent);font-size:14px;margin-bottom:10px;}
+
+  .units{padding:12px 16px;}
+  .unit-card{
+    display:flex;align-items:center;width:100%;background:var(--bg-card);
+    border:1px solid var(--line);border-radius:6px;padding:16px 18px;margin-bottom:10px;
+    cursor:pointer;text-align:left;box-shadow:var(--shadow-sm);
+    transition:transform .15s,box-shadow .2s;
+  }
+  .unit-card:active{transform:scale(.99);}
+  .unit-num{font-family:'Shippori Mincho',serif;font-size:14px;color:var(--gold);font-weight:500;letter-spacing:.12em;min-width:36px;}
+  .unit-info{flex:1;}
+  .unit-title{font-family:'Shippori Mincho',serif;font-size:15px;font-weight:600;letter-spacing:.06em;margin-bottom:3px;}
+  .unit-thai{font-family:'Noto Serif Thai',serif;font-size:12px;color:var(--accent);}
+  .unit-meta{text-align:right;margin-left:12px;}
+  .unit-count{font-size:10px;color:var(--ink-muted);letter-spacing:.1em;font-variant-numeric:tabular-nums;}
+  .unit-progress{width:36px;height:3px;background:var(--line-soft);border-radius:2px;margin-top:6px;overflow:hidden;}
+  .unit-progress-fill{height:100%;background:var(--accent);transition:width .3s;}
+  .unit-progress-fill.complete{background:var(--green);}
+
+  /* STUDY */
+  .study-controls{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 20px;background:var(--bg);border-bottom:1px solid var(--line);
+    position:sticky;top:49px;z-index:40;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  }
+  .mode-tabs{display:flex;gap:0;background:var(--bg-sub);border-radius:4px;padding:2px;}
+  .mode-tab{
+    padding:6px 12px;font-size:11px;font-weight:500;letter-spacing:.1em;color:var(--ink-muted);
+    background:transparent;border:none;cursor:pointer;border-radius:3px;transition:all .2s;
+  }
+  .mode-tab.active{background:var(--bg-card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.05);}
+  .study-counter{font-family:'Shippori Mincho',serif;font-size:13px;color:var(--ink-soft);font-variant-numeric:tabular-nums;letter-spacing:.1em;}
+
+  /* SENTENCE LIST */
+  .sentence-list{padding:14px 16px 24px;}
+  .sentence-card{
+    background:var(--bg-card);border:1px solid var(--line);border-radius:8px;
+    padding:20px 18px 18px;margin-bottom:14px;box-shadow:var(--shadow-sm);position:relative;
+    animation:fadeUp .3s ease both;
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .sentence-card .num{position:absolute;top:14px;right:18px;font-family:'Shippori Mincho',serif;font-size:10px;color:var(--gold);letter-spacing:.15em;}
+
+  .sent-thai{
+    font-family:'Noto Sans Thai',sans-serif;font-weight:600;font-size:24px;line-height:1.5;color:var(--ink);
+    cursor:pointer;display:inline-block;padding:4px 8px;border-radius:6px;
+    transition:background .2s,color .2s;user-select:none;-webkit-user-select:none;
+    margin-bottom:8px;margin-left:-8px;
+  }
+  .sent-thai:active,.sent-thai.playing{background:var(--accent-soft);color:var(--accent);}
+  .sent-thai .speaker-icon{display:inline-block;width:14px;height:14px;margin-left:8px;opacity:.4;vertical-align:middle;transition:opacity .2s;}
+  .sent-thai.playing .speaker-icon{opacity:1;}
+
+  .sent-ph{
+    font-family:'Inter',sans-serif;font-size:14px;color:var(--ink-soft);
+    letter-spacing:.02em;margin-bottom:8px;font-style:italic;
+  }
+  .sent-jp{
+    font-family:'Shippori Mincho',serif;font-size:15px;font-weight:500;color:var(--ink);
+    letter-spacing:.05em;padding-bottom:14px;border-bottom:1px dashed var(--line-soft);
+  }
+
+  .sent-actions{display:flex;gap:8px;margin-top:12px;align-items:center;}
+  .icon-btn{
+    width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+    background:transparent;border:1px solid var(--line);border-radius:4px;cursor:pointer;
+    color:var(--ink-soft);transition:all .15s;flex-shrink:0;
+  }
+  .icon-btn:active{transform:scale(.95);}
+  .icon-btn svg{width:14px;height:14px;}
+  .icon-btn.slow{color:var(--gold);}
+  .icon-btn.learned{background:var(--bg-sub);}
+  .icon-btn.learned.active{background:var(--green);color:#fff;border-color:var(--green);}
+
+  .vocab-toggle{
+    flex:1;text-align:left;padding:8px 12px;font-size:11px;font-weight:500;
+    background:var(--bg-sub);border:1px solid var(--line);border-radius:4px;color:var(--ink-soft);
+    cursor:pointer;letter-spacing:.05em;display:flex;align-items:center;justify-content:space-between;
+  }
+  .vocab-toggle.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);}
+  .vocab-toggle .arrow{font-size:10px;transition:transform .2s;}
+  .vocab-toggle.active .arrow{transform:rotate(90deg);}
+
+  .vocab-list{
+    margin-top:12px;padding:14px 14px 4px;background:var(--bg-sub);border-radius:6px;
+    display:none;animation:fadeIn .25s ease;
+  }
+  .vocab-list.show{display:block;}
+  .vocab-item{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 4px;border-bottom:1px solid var(--line-soft);gap:12px;
+  }
+  .vocab-item:last-child{border-bottom:none;}
+  .vocab-th{
+    font-family:'Noto Sans Thai',sans-serif;font-weight:600;font-size:16px;color:var(--ink);
+    cursor:pointer;padding:2px 4px;border-radius:3px;transition:background .2s;flex-shrink:0;
+  }
+  .vocab-th:active,.vocab-th.playing{background:var(--accent-soft);color:var(--accent);}
+  .vocab-ph{font-family:'Inter',sans-serif;font-size:11px;color:var(--ink-muted);letter-spacing:.02em;flex:1;text-align:center;}
+  .vocab-jp{font-family:'Shippori Mincho',serif;font-size:13px;color:var(--ink);text-align:right;flex-shrink:0;max-width:120px;}
+
+  /* CARD MODE */
+  .card-area{padding:24px 20px;min-height:calc(100vh - 220px);display:flex;flex-direction:column;}
+  .flashcard{
+    flex:1;background:var(--bg-card);border:1px solid var(--line);border-radius:12px;
+    padding:32px 22px;box-shadow:var(--shadow-lg);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    cursor:pointer;position:relative;min-height:380px;
+  }
+  .fc-num{position:absolute;top:18px;left:22px;font-family:'Shippori Mincho',serif;font-size:11px;color:var(--gold);letter-spacing:.2em;}
+  .fc-side{position:absolute;top:18px;right:22px;font-size:9px;color:var(--ink-faint);letter-spacing:.25em;text-transform:uppercase;}
+
+  .fc-thai{
+    font-family:'Noto Sans Thai',sans-serif;font-weight:600;font-size:26px;line-height:1.5;color:var(--ink);
+    margin-bottom:16px;cursor:pointer;padding:6px 10px;border-radius:6px;transition:background .2s;
+  }
+  .fc-thai.playing{background:var(--accent-soft);color:var(--accent);}
+  .fc-ph{font-family:'Inter',sans-serif;font-size:14px;color:var(--ink-soft);letter-spacing:.02em;margin-bottom:24px;font-style:italic;}
+  .fc-jp{font-family:'Shippori Mincho',serif;font-size:18px;font-weight:600;color:var(--accent);letter-spacing:.06em;line-height:1.5;transition:opacity .3s,filter .3s;}
+  .fc-hint{margin-top:24px;font-size:10px;color:var(--ink-faint);letter-spacing:.25em;text-transform:uppercase;}
+  .fc-hidden{opacity:.15;filter:blur(6px);user-select:none;}
+
+  .fc-controls{display:flex;gap:12px;margin-top:20px;}
+  .fc-btn{
+    flex:1;padding:14px;font-family:'Shippori Mincho',serif;font-size:13px;font-weight:500;letter-spacing:.15em;
+    background:var(--bg-card);border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--ink);
+    display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;
+  }
+  .fc-btn:active{transform:scale(.97);}
+  .fc-btn svg{width:14px;height:14px;}
+  .fc-btn.prev{color:var(--ink-soft);}
+  .fc-btn.next{background:var(--ink);color:var(--bg-card);border-color:var(--ink);}
+
+  /* QUIZ */
+  .quiz-area{padding:20px 20px 40px;}
+  .quiz-progress{display:flex;gap:4px;margin-bottom:24px;}
+  .quiz-progress .pip{flex:1;height:3px;background:var(--line-soft);border-radius:2px;transition:background .3s;}
+  .quiz-progress .pip.done{background:var(--green);}
+  .quiz-progress .pip.wrong{background:var(--accent);}
+  .quiz-progress .pip.current{background:var(--gold);}
+
+  .quiz-question{
+    text-align:center;margin-bottom:24px;padding:28px 18px;
+    background:var(--bg-card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow-md);
+  }
+  .quiz-prompt{font-size:10px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;}
+  .quiz-thai{
+    font-family:'Noto Sans Thai',sans-serif;font-weight:600;font-size:22px;line-height:1.5;
+    margin-bottom:8px;cursor:pointer;display:inline-block;padding:4px 10px;border-radius:4px;transition:background .2s;
+  }
+  .quiz-thai.playing{background:var(--accent-soft);color:var(--accent);}
+  .quiz-ph-small{font-family:'Inter',sans-serif;font-size:12px;color:var(--ink-muted);letter-spacing:.02em;margin-top:4px;font-style:italic;}
+  .quiz-jp{font-family:'Shippori Mincho',serif;font-size:18px;font-weight:600;color:var(--ink);letter-spacing:.06em;line-height:1.4;}
+
+  .quiz-options{display:flex;flex-direction:column;gap:10px;}
+  .quiz-option{
+    background:var(--bg-card);border:1px solid var(--line);border-radius:6px;padding:14px 16px;
+    cursor:pointer;text-align:left;transition:all .15s;position:relative;
+  }
+  .quiz-option:active{transform:scale(.99);}
+  .quiz-option .opt-thai{font-family:'Noto Sans Thai',sans-serif;font-weight:500;font-size:16px;color:var(--ink);margin-bottom:2px;line-height:1.4;}
+  .quiz-option .opt-jp{font-family:'Shippori Mincho',serif;font-size:13px;font-weight:500;color:var(--ink);line-height:1.4;}
+  .quiz-option .opt-ph{font-family:'Inter',sans-serif;font-size:11px;color:var(--ink-muted);letter-spacing:.02em;margin-top:2px;font-style:italic;}
+  .quiz-option.correct{background:rgba(90,122,58,0.08);border-color:var(--green);}
+  .quiz-option.correct::after{content:'✓';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--green);font-size:18px;font-weight:bold;}
+  .quiz-option.wrong{background:rgba(168,57,26,0.06);border-color:var(--accent);}
+  .quiz-option.wrong::after{content:'×';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--accent);font-size:22px;}
+  .quiz-option.disabled{pointer-events:none;}
+
+  .quiz-next-btn{
+    margin-top:18px;width:100%;padding:14px;font-family:'Shippori Mincho',serif;
+    font-size:13px;font-weight:500;letter-spacing:.2em;
+    background:var(--ink);color:var(--bg-card);border:none;border-radius:6px;cursor:pointer;display:none;
+  }
+  .quiz-next-btn.show{display:block;animation:fadeIn .25s;}
+  .quiz-next-btn:active{transform:scale(.99);}
+
+  .quiz-result{text-align:center;padding:40px 24px;}
+  .quiz-result-emoji{font-family:'Noto Serif Thai',serif;font-size:32px;color:var(--gold);margin-bottom:16px;}
+  .quiz-result-title{font-family:'Shippori Mincho',serif;font-size:22px;font-weight:600;margin-bottom:8px;letter-spacing:.1em;}
+  .quiz-result-thai{font-family:'Noto Serif Thai',serif;color:var(--accent);font-size:14px;margin-bottom:28px;}
+  .quiz-result-score{font-family:'Shippori Mincho',serif;font-size:42px;color:var(--ink);font-weight:600;margin-bottom:4px;}
+  .quiz-result-detail{font-size:12px;color:var(--ink-muted);letter-spacing:.1em;margin-bottom:32px;}
+  .quiz-result-actions{display:flex;gap:12px;}
+  .quiz-result-actions button{
+    flex:1;padding:14px;font-family:'Shippori Mincho',serif;font-size:12px;font-weight:500;letter-spacing:.15em;
+    border-radius:4px;cursor:pointer;transition:all .15s;
+  }
+  .quiz-result-actions .retry{background:transparent;border:1px solid var(--ink);color:var(--ink);}
+  .quiz-result-actions .next{background:var(--ink);border:1px solid var(--ink);color:var(--bg-card);}
+  .quiz-result-actions button:active{transform:scale(.97);}
+
+  /* NOTICES */
+  .notice{
+    margin:12px 16px;padding:12px 14px;background:var(--bg-sub);
+    border-left:2px solid var(--gold);font-size:11px;color:var(--ink-soft);
+    letter-spacing:.05em;line-height:1.6;border-radius:0 4px 4px 0;
+  }
+
+  .footer-mark{text-align:center;padding:32px 24px 24px;color:var(--ink-faint);}
+  .footer-mark .symbol{font-family:'Noto Serif Thai',serif;font-size:14px;color:var(--gold);margin-bottom:6px;}
+  .footer-mark .text{font-family:'Noto Serif Thai',serif;font-size:11px;letter-spacing:.2em;}
+
+  @media (max-width:380px){
+    .home-header h1{font-size:24px;}
+    .sent-thai{font-size:21px;}
+    .fc-thai{font-size:22px;}
+    .quiz-thai{font-size:19px;}
+  }
+
+  /* SRS — grade buttons */
+  .fc-grade-controls{display:flex;gap:8px;margin-top:20px;}
+  .fc-grade-btn{
+    flex:1;padding:12px 4px;font-family:'Shippori Mincho',serif;
+    background:var(--bg-card);border:1px solid var(--line);border-radius:6px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .15s,background .2s;
+  }
+  .fc-grade-btn:active{transform:scale(.97);}
+  .fc-grade-btn .label{font-size:13px;font-weight:500;letter-spacing:.1em;}
+  .fc-grade-btn .interval{font-size:9px;color:var(--ink-muted);letter-spacing:.05em;font-variant-numeric:tabular-nums;}
+  .fc-grade-btn.again{color:var(--accent);border-color:var(--accent);}
+  .fc-grade-btn.again .interval{color:var(--accent);opacity:.7;}
+  .fc-grade-btn.good{background:var(--ink);color:var(--bg-card);border-color:var(--ink);}
+  .fc-grade-btn.good .interval{color:var(--bg-card);opacity:.6;}
+  .fc-grade-btn.easy{color:var(--green);border-color:var(--green);}
+  .fc-grade-btn.easy .interval{color:var(--green);opacity:.7;}
+
+  /* SRS — due badge on unit cards */
+  .due-badge{
+    display:inline-block;font-size:9px;color:#fff;background:var(--accent);
+    padding:2px 6px;border-radius:8px;margin-top:5px;font-variant-numeric:tabular-nums;
+    letter-spacing:.05em;font-weight:500;
+  }
+
+  /* Completion / empty screen — shared by cardComplete & review-empty */
+  .completion-screen{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:40px 24px;
+  }
+  .completion-screen .symbol{font-family:'Noto Serif Thai',serif;font-size:32px;color:var(--gold);margin-bottom:16px;}
+  .completion-screen .title{font-family:'Shippori Mincho',serif;font-size:22px;font-weight:600;color:var(--ink);margin-bottom:8px;letter-spacing:.1em;}
+  .completion-screen .thai{font-family:'Noto Serif Thai',serif;color:var(--accent);font-size:14px;margin-bottom:24px;}
+  .completion-screen .desc{font-size:13px;line-height:1.7;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- HOME -->
+  <section class="screen active" id="screen-home">
+    <header class="home-header">
+      <div class="mark"><span></span><div class="thai-mini">Thai Master</div><span></span></div>
+      <div class="thai-title">เรียนภาษาไทย</div>
+      <h1>タイ語マスター</h1>
+      <div class="subtitle">Sentences · 2000+ Words</div>
+    </header>
+    <div class="stats-bar">
+      <div class="stat-item"><div class="stat-num" id="stat-learned">0</div><div class="stat-label">学習済</div></div>
+      <div class="stat-item"><div class="stat-num" id="stat-due">0</div><div class="stat-label">今日復習</div></div>
+      <div class="stat-item"><div class="stat-num" id="stat-percent">0%</div><div class="stat-label">進捗</div></div>
+    </div>
+    <div class="section-title">コース・หลักสูตร</div>
+    <div class="courses" id="course-list"></div>
+    <div class="footer-mark">
+      <div class="symbol">๏</div>
+      <div class="text">ขอให้สนุกกับการเรียน</div>
+    </div>
+  </section>
+
+  <!-- UNITS -->
+  <section class="screen" id="screen-units">
+    <div class="top-bar">
+      <div class="left">
+        <button class="back-btn" data-back="home" aria-label="ホームへ戻る">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="top-title"><div id="units-title">コース</div><span class="thai" id="units-thai-title"></span></div>
+      </div>
+      <div class="top-meta" id="units-meta"></div>
+    </div>
+    <div class="course-banner">
+      <div class="label" id="banner-label">FOUNDATION</div>
+      <h2 id="banner-title">初級</h2>
+      <div class="thai" id="banner-thai">ระดับต้น</div>
+    </div>
+    <div class="units" id="unit-list"></div>
+  </section>
+
+  <!-- STUDY -->
+  <section class="screen" id="screen-study">
+    <div class="top-bar">
+      <div class="left">
+        <button class="back-btn" data-back="units" aria-label="ユニット一覧へ戻る">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="top-title"><div id="study-title">レッスン</div><span class="thai" id="study-thai-title"></span></div>
+      </div>
+      <div class="top-meta" id="study-meta"></div>
+    </div>
+    <div class="study-controls">
+      <div class="mode-tabs">
+        <button class="mode-tab active" data-mode="list">一覧</button>
+        <button class="mode-tab" data-mode="card">カード</button>
+        <button class="mode-tab" data-mode="review">復習</button>
+        <button class="mode-tab" data-mode="quiz">クイズ</button>
+      </div>
+      <div class="study-counter" id="study-counter">— / —</div>
+    </div>
+    <div id="notice-area"></div>
+    <div class="sentence-list" id="sentence-list" style="display:block"></div>
+    <div class="card-area" id="card-area" style="display:none">
+      <div class="flashcard" id="flashcard">
+        <span class="fc-num" id="fc-num">01</span>
+        <span class="fc-side" id="fc-side">FRONT</span>
+        <div class="fc-thai" id="fc-thai">—</div>
+        <div class="fc-ph" id="fc-ph">—</div>
+        <div class="fc-jp fc-hidden" id="fc-jp">—</div>
+        <div class="fc-hint" id="fc-hint">タップで意味を見る</div>
+      </div>
+      <div class="fc-controls" id="fc-controls"></div>
+    </div>
+    <div class="quiz-area" id="quiz-area" style="display:none"></div>
+  </section>
+</div>
+
+
+<script>
+'use strict';
+let COURSES = {};
+const COURSES_URL = './courses.json';
+const state = {course:null, unit:null, mode:'list', cardIdx:0, cardFlipped:false, quiz:null, reviewQueue:null};
+
+// DOM shorthand
+const $  = (id) => document.getElementById(id);
+const $$ = (sel, root) => (root||document).querySelectorAll(sel);
+
+// SVG icons (centralised so they don't drift)
+const ICONS = {
+  back:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>',
+  forward: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>',
+  clock:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  check:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
+  speaker: '<svg class="speaker-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>'
+};
+
+async function loadCourses(){
+  const res = await fetch(COURSES_URL,{cache:'force-cache'});
+  if(!res.ok) throw new Error('courses.json: '+res.status);
+  COURSES = await res.json();
+}
+
+// STORAGE
+const STORAGE_KEY = 'thai_master_v2_progress';
+function loadProgress(){
+  try{
+    const r=localStorage.getItem(STORAGE_KEY);
+    const p=r?JSON.parse(r):{};
+    if(!p.learned) p.learned={};
+    if(!p.srs) p.srs={};
+    return p;
+  }catch{return{learned:{},srs:{}};}
+}
+function saveProgress(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(progress));}catch{}}
+const progress = loadProgress();
+function sentKey(c,u,i){return c+'/'+u+'/'+i;}
+function isLearned(c,u,i){return !!progress.learned[sentKey(c,u,i)];}
+function setLearned(c,u,i,v){
+  const k=sentKey(c,u,i);
+  if(v){
+    if(!progress.srs[k]) gradeSrs(c,u,i,4);
+    else { progress.learned[k]=1; saveProgress(); }
+  }else{
+    delete progress.learned[k];
+    delete progress.srs[k];
+    saveProgress();
+  }
+}
+
+// STATS
+function getCourseStats(k){const c=COURSES[k];let t=0,l=0;c.units.forEach(u=>{t+=u.sentences.length;u.sentences.forEach((s,i)=>{if(isLearned(k,u.id,i))l++;});});return {total:t,learned:l};}
+function getUnitStats(k,uid){const u=COURSES[k].units.find(x=>x.id===uid);let l=0;u.sentences.forEach((s,i)=>{if(isLearned(k,uid,i))l++;});return {total:u.sentences.length,learned:l};}
+function getGlobalStats(){let t=0,l=0;Object.keys(COURSES).forEach(k=>{const s=getCourseStats(k);t+=s.total;l+=s.learned;});return {total:t,learned:l,percent:t?Math.round(l/t*100):0};}
+
+// SRS — SM-2 (lite). State per sentence: e(ase), i(nterval days), r(eps), d(ue ms), l(astReviewed ms).
+// Quality grades used by UI: 1=Again, 4=Good, 5=Easy.
+const DAY_MS=86400000;
+function gradeSrs(c,u,i,q){
+  const k=sentKey(c,u,i);
+  const now=Date.now();
+  const s=progress.srs[k]||{e:2.5,i:0,r:0,d:0,l:0};
+  if(q<3){
+    s.r=0;s.i=0;
+    s.d=now+10*60*1000;          // 10-min relearn
+  }else{
+    if(s.r===0)s.i=1;
+    else if(s.r===1)s.i=6;
+    else s.i=Math.max(1,Math.round(s.i*s.e));
+    if(q===5)s.i=Math.max(s.i+1,Math.round(s.i*1.3));   // easy bonus
+    s.r+=1;
+    s.d=now+s.i*DAY_MS;
+  }
+  s.e=Math.max(1.3,s.e+(0.1-(5-q)*(0.08+(5-q)*0.02))); // SM-2 ease formula
+  s.l=now;
+  progress.srs[k]=s;
+  if(s.r>=1) progress.learned[k]=1;
+  saveProgress();
+}
+function isDue(c,u,i){const s=progress.srs[sentKey(c,u,i)];return !!s && s.d<=Date.now();}
+function previewInterval(c,u,i,q){
+  const orig=progress.srs[sentKey(c,u,i)]||{e:2.5,i:0,r:0,d:0,l:0};
+  const s={...orig};
+  if(q<3) return '10分';
+  if(s.r===0) s.i=1;
+  else if(s.r===1) s.i=6;
+  else s.i=Math.max(1,Math.round(s.i*s.e));
+  if(q===5) s.i=Math.max(s.i+1,Math.round(s.i*1.3));
+  return s.i+'日';
+}
+function getUnitDueCount(c,uid){
+  const u=COURSES[c].units.find(x=>x.id===uid);if(!u)return 0;
+  let n=0;for(let i=0;i<u.sentences.length;i++) if(isDue(c,uid,i)) n++;return n;
+}
+function getCourseDueCount(c){let n=0;COURSES[c].units.forEach(u=>{u.sentences.forEach((_,i)=>{if(isDue(c,u.id,i))n++;});});return n;}
+function getGlobalDueCount(){return Object.keys(COURSES).reduce((a,k)=>a+getCourseDueCount(k),0);}
+
+// TTS - Chirp 3: HD MP3再生 + Web Speech APIフォールバック
+let thaiVoice = null;
+let audioManifest = null;
+let manifestLoaded = false;
+let currentAudio = null;
+const AUDIO_BASE = './audio/';
+const MANIFEST_URL = './audio-manifest.json';
+
+function loadVoices(){if(!('speechSynthesis' in window))return false;const v=speechSynthesis.getVoices();if(v.length===0)return false;thaiVoice=v.find(x=>x.lang&&x.lang.toLowerCase().startsWith('th'))||null;return true;}
+function initVoices(){if(!('speechSynthesis' in window))return;if(!loadVoices())speechSynthesis.onvoiceschanged=loadVoices;}
+
+// マニフェスト読み込み(初回1回のみ)
+async function loadManifest(){
+  if(manifestLoaded) return;
+  manifestLoaded = true;
+  try{
+    const res = await fetch(MANIFEST_URL,{cache:'force-cache'});
+    if(res.ok){
+      audioManifest = await res.json();
+      console.log('Audio manifest loaded:',Object.keys(audioManifest).length,'entries');
+    }
+  }catch(e){
+    console.log('Manifest unavailable, using Web Speech API fallback');
+  }
+}
+
+function stopAll(){
+  if(currentAudio){
+    currentAudio.pause();
+    currentAudio.src='';
+    currentAudio=null;
+  }
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+}
+
+function speak(text, rate, onEnd){
+  stopAll();
+  
+  // Chirp 3 HD MP3を優先使用
+  if(audioManifest && audioManifest[text]){
+    try{
+      const audio = new Audio(AUDIO_BASE + audioManifest[text]);
+      // rate: 0.5 = ゆっくり再生(復習用), 1.0 = ネイティブ速度
+      // Chirp 3生成時は既に0.9で生成しているので、ここでさらに調整可能
+      audio.playbackRate = rate ? Math.max(0.5, Math.min(2, rate / 0.85)) : 1.0;
+      audio.preservesPitch = true; // 音程を維持
+      currentAudio = audio;
+      audio.addEventListener('ended', () => {
+        if(currentAudio === audio) currentAudio = null;
+        if(onEnd) onEnd();
+      });
+      audio.addEventListener('error', () => {
+        if(currentAudio === audio) currentAudio = null;
+        // MP3失敗時はWeb Speech APIへフォールバック
+        speakFallback(text, rate, onEnd);
+      });
+      audio.play().catch(() => {
+        // 自動再生ブロック等の場合
+        speakFallback(text, rate, onEnd);
+      });
+      return;
+    }catch(e){
+      // 例外時もフォールバック
+    }
+  }
+  
+  // フォールバック: Web Speech API
+  speakFallback(text, rate, onEnd);
+}
+
+function speakFallback(text, rate, onEnd){
+  if(!('speechSynthesis' in window)){if(onEnd)onEnd();return;}
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'th-TH';
+  u.rate = rate || 0.85;
+  u.pitch = 1;
+  if(thaiVoice) u.voice = thaiVoice;
+  u.onend = () => {if(onEnd) onEnd();};
+  u.onerror = () => {if(onEnd) onEnd();};
+  setTimeout(() => speechSynthesis.speak(u), 30);
+}
+
+function showVoiceNotice(el){
+  // Chirp 3 HD音声があれば通知不要
+  if(audioManifest){el.innerHTML='';return;}
+  if(!('speechSynthesis' in window)){
+    el.innerHTML='<div class="notice">この端末は音声に対応していません。テキスト学習のみご利用いただけます。</div>';
+    return;
+  }
+  setTimeout(()=>{
+    if(audioManifest){el.innerHTML='';return;}
+    if(!thaiVoice){
+      el.innerHTML='<div class="notice">高品質音声(Chirp 3 HD)を読み込み中...または、お使いの端末にタイ語音声がない場合はテキストのみで学習できます。</div>';
+    }else{
+      el.innerHTML='';
+    }
+  },800);
+}
+
+// UTIL
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function shuffle(a){const x=a.slice();for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;}
+
+// Navigation context
+const currentUnit = () => COURSES[state.course].units.find(u => u.id === state.unit);
+const currentItem = () => getCardDeck()[state.cardIdx];   // {s, origIdx}
+
+// Audio + visual highlight helpers
+function clearPlaying(root){ $$('.playing', root).forEach(x => x.classList.remove('playing')); }
+function playWithHighlight(el, text, rate){
+  el.classList.add('playing');
+  speak(text, rate, () => setTimeout(() => el.classList.remove('playing'), 100));
+}
+
+// NAV
+function showScreen(n){$$('.screen').forEach(s=>s.classList.remove('active'));$('screen-'+n).classList.add('active');stopAll();window.scrollTo(0,0);}
+
+// HOME
+function renderHome(){
+  const g=getGlobalStats();
+  $('stat-learned').textContent=g.learned;
+  $('stat-due').textContent=getGlobalDueCount();
+  $('stat-percent').textContent=g.percent+'%';
+  const w=$('course-list');w.innerHTML='';
+  Object.keys(COURSES).forEach((key,i)=>{
+    const c=COURSES[key];const s=getCourseStats(key);const p=s.total?Math.round(s.learned/s.total*100):0;
+    const card=document.createElement('button');card.className='course-card '+key;
+    card.innerHTML=
+      `<div class="course-head">`+
+        `<div><div class="course-level">${escapeHtml(c.title)}</div><div class="course-thai">${escapeHtml(c.thaiTitle)}</div></div>`+
+        `<div class="course-num">${String(i+1).padStart(2,'0')} / 03</div>`+
+      `</div>`+
+      `<div class="course-desc">${escapeHtml(c.description)}</div>`+
+      `<div class="progress-row"><div class="progress-track"><div class="progress-fill" style="width:${p}%"></div></div><div class="progress-text">${s.learned} / ${s.total}</div></div>`;
+    card.addEventListener('click',()=>openCourse(key));
+    w.appendChild(card);
+  });
+}
+
+function openCourse(key){
+  state.course=key;const c=COURSES[key];
+  $('units-title').textContent=c.title;
+  $('units-thai-title').textContent=c.thaiTitle;
+  $('banner-label').textContent=c.subtitle;
+  $('banner-title').textContent=c.title;
+  $('banner-thai').textContent=c.thaiTitle;
+  const s=getCourseStats(key);
+  $('units-meta').textContent=s.learned+' / '+s.total;
+  const list=$('unit-list');list.innerHTML='';
+  c.units.forEach((u,i)=>{
+    const us=getUnitStats(key,u.id);const p=us.total?Math.round(us.learned/us.total*100):0;
+    const due=getUnitDueCount(key,u.id);
+    const dueHtml=due>0?`<div class="due-badge">復習 ${due}</div>`:'';
+    const card=document.createElement('button');card.className='unit-card';
+    card.innerHTML=
+      `<div class="unit-num">${String(i+1).padStart(2,'0')}</div>`+
+      `<div class="unit-info"><div class="unit-title">${escapeHtml(u.title)}</div><div class="unit-thai">${escapeHtml(u.thaiTitle)}</div></div>`+
+      `<div class="unit-meta"><div class="unit-count">${us.learned} / ${us.total}</div><div class="unit-progress"><div class="unit-progress-fill ${p===100?'complete':''}" style="width:${p}%"></div></div>${dueHtml}</div>`;
+    card.addEventListener('click',()=>openUnit(u.id));
+    list.appendChild(card);
+  });
+  showScreen('units');
+}
+
+function openUnit(uid){
+  state.unit=uid;state.mode='list';state.cardIdx=0;state.cardFlipped=false;state.quiz=null;state.reviewQueue=null;
+  const u=currentUnit();
+  $('study-title').textContent=u.title;
+  $('study-thai-title').textContent=u.thaiTitle;
+  $$('.mode-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.mode-tab[data-mode="list"]').classList.add('active');
+  showVoiceNotice($('notice-area'));
+  showMode('list');
+  showScreen('study');
+}
+
+const FLASHCARD_TEMPLATE =
+  `<span class="fc-num" id="fc-num">01</span>`+
+  `<span class="fc-side" id="fc-side">FRONT</span>`+
+  `<div class="fc-thai" id="fc-thai">—</div>`+
+  `<div class="fc-ph" id="fc-ph">—</div>`+
+  `<div class="fc-jp fc-hidden" id="fc-jp">—</div>`+
+  `<div class="fc-hint" id="fc-hint">タップで意味を見る</div>`;
+
+function showMode(m){
+  state.mode=m;
+  const isCardLike=(m==='card'||m==='review');
+  $('sentence-list').style.display = m==='list' ? 'block' : 'none';
+  $('card-area').style.display     = isCardLike ? 'flex'  : 'none';
+  $('quiz-area').style.display     = m==='quiz' ? 'block' : 'none';
+  window.scrollTo(0,0);
+  if(m==='list'){state.reviewQueue=null;renderList();}
+  else if(isCardLike){
+    state.cardIdx=0;state.cardFlipped=false;
+    if(m==='review'){
+      const u=currentUnit();
+      state.reviewQueue=[];
+      u.sentences.forEach((s,i)=>{ if(isDue(state.course,state.unit,i)) state.reviewQueue.push(i); });
+    } else {
+      state.reviewQueue=null;
+    }
+    $('flashcard').innerHTML=FLASHCARD_TEMPLATE;
+    $('flashcard').style.cursor='pointer';
+    if(state.reviewQueue && state.reviewQueue.length===0) renderReviewEmpty();
+    else renderCard();
+  }
+  else if(m==='quiz'){state.reviewQueue=null;startQuiz();}
+}
+
+function getCardDeck(){
+  const u=currentUnit();
+  if(state.reviewQueue) return state.reviewQueue.map(i=>({s:u.sentences[i], origIdx:i}));
+  return u.sentences.map((s,i)=>({s, origIdx:i}));
+}
+
+// LIST
+function buildVocabHtml(s, sentIdx){
+  if(!s.words || s.words.length===0) return {toggle:'', list:''};
+  const items = s.words.map((w,wi)=>(
+    `<div class="vocab-item"><div class="vocab-th" data-sidx="${sentIdx}" data-widx="${wi}">${escapeHtml(w.th)}</div><div class="vocab-ph">${escapeHtml(w.ph)}</div><div class="vocab-jp">${escapeHtml(w.jp)}</div></div>`
+  )).join('');
+  return {
+    toggle: `<button class="vocab-toggle" data-idx="${sentIdx}"><span>新出語 ${s.words.length} 語 (vocabulary)</span><span class="arrow">▶</span></button>`,
+    list:   `<div class="vocab-list" id="vocab-${sentIdx}">${items}</div>`
+  };
+}
+function renderList(){
+  const u=currentUnit();
+  const stats=getUnitStats(state.course,state.unit);
+  $('study-counter').textContent=stats.learned+' / '+stats.total;
+  $('study-meta').textContent=u.thaiTitle;
+  const w=$('sentence-list');w.innerHTML='';
+  u.sentences.forEach((s,i)=>{
+    const learned=isLearned(state.course,state.unit,i);
+    const {toggle, list}=buildVocabHtml(s,i);
+    const togglePart = toggle ? `<div style="flex:1">${toggle}</div>` : '';
+    const card=document.createElement('div');card.className='sentence-card';
+    card.innerHTML=
+      `<div class="num">№ ${String(i+1).padStart(3,'0')}</div>`+
+      `<div class="sent-thai" data-idx="${i}">${escapeHtml(s.th)}${ICONS.speaker}</div>`+
+      `<div class="sent-ph">${escapeHtml(s.ph)}</div>`+
+      `<div class="sent-jp">${escapeHtml(s.jp)}</div>`+
+      `<div class="sent-actions">`+
+        `<button class="icon-btn slow" data-action="slow" data-idx="${i}" aria-label="ゆっくり再生">${ICONS.clock}</button>`+
+        `<button class="icon-btn learned ${learned?'active':''}" data-action="learned" data-idx="${i}" aria-label="学習済みを切替">${ICONS.check}</button>`+
+        togglePart+
+      `</div>`+
+      list;
+    w.appendChild(card);
+  });
+
+  $$('.sent-thai',w).forEach(el=>{
+    el.addEventListener('click',()=>{
+      const i=+el.dataset.idx;
+      clearPlaying(w);
+      playWithHighlight(el, u.sentences[i].th, 0.8);
+    });
+  });
+  $$('.icon-btn',w).forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      const i=+btn.dataset.idx;const a=btn.dataset.action;
+      if(a==='slow'){
+        clearPlaying(w);
+        const t=btn.closest('.sentence-card').querySelector('.sent-thai');
+        playWithHighlight(t, u.sentences[i].th, 0.5);
+      }else if(a==='learned'){
+        const v=!isLearned(state.course,state.unit,i);
+        setLearned(state.course,state.unit,i,v);
+        btn.classList.toggle('active',v);
+        const s2=getUnitStats(state.course,state.unit);
+        $('study-counter').textContent=s2.learned+' / '+s2.total;
+      }
+    });
+  });
+  $$('.vocab-toggle',w).forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      const i=+btn.dataset.idx;
+      btn.classList.toggle('active');
+      $('vocab-'+i).classList.toggle('show');
+    });
+  });
+  $$('.vocab-th',w).forEach(el=>{
+    el.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      const sidx=+el.dataset.sidx, widx=+el.dataset.widx;
+      const word=u.sentences[sidx].words[widx];
+      clearPlaying(w);
+      playWithHighlight(el, word.th, 0.7);
+    });
+  });
+}
+
+// CARD
+function renderCard(){
+  const u=currentUnit();
+  const deck=getCardDeck();
+  if(deck.length===0){renderReviewEmpty();return;}
+  const item=deck[state.cardIdx];const s=item.s;
+  $('study-counter').textContent=(state.cardIdx+1)+' / '+deck.length;
+  $('study-meta').textContent=u.thaiTitle;
+  $('fc-num').textContent='№ '+String(state.cardIdx+1).padStart(3,'0');
+  $('fc-side').textContent=state.cardFlipped?'BACK':'FRONT';
+  $('fc-thai').textContent=s.th;
+  $('fc-ph').textContent=s.ph;
+  const j=$('fc-jp');j.textContent=s.jp;j.classList.toggle('fc-hidden',!state.cardFlipped);
+  $('fc-hint').textContent=state.cardFlipped?'評価して次のカードへ':'タップで意味を見る';
+  renderCardControls(item);
+  playWithHighlight($('fc-thai'), s.th, 0.8);
+}
+function renderCardControls(item){
+  const ctrls=$('fc-controls');
+  if(!state.cardFlipped){
+    ctrls.className='fc-controls';
+    const prevDim=state.cardIdx===0;
+    ctrls.innerHTML=
+      `<button class="fc-btn prev" id="fc-prev" aria-label="前のカード"${prevDim?' style="opacity:.3;pointer-events:none"':''}>${ICONS.back}前へ</button>`+
+      `<button class="fc-btn next" id="fc-reveal">答えを見る${ICONS.forward}</button>`;
+    $('fc-prev').addEventListener('click',(e)=>{e.stopPropagation();prevCard();});
+    $('fc-reveal').addEventListener('click',(e)=>{e.stopPropagation();flipCard();});
+  }else{
+    ctrls.className='fc-grade-controls';
+    const idx=item.origIdx;
+    const lA=previewInterval(state.course,state.unit,idx,1);
+    const lG=previewInterval(state.course,state.unit,idx,4);
+    const lE=previewInterval(state.course,state.unit,idx,5);
+    ctrls.innerHTML=
+      `<button class="fc-grade-btn again" data-q="1"><span class="label">もう一度</span><span class="interval">${lA}</span></button>`+
+      `<button class="fc-grade-btn good"  data-q="4"><span class="label">正解</span><span class="interval">${lG}</span></button>`+
+      `<button class="fc-grade-btn easy"  data-q="5"><span class="label">簡単</span><span class="interval">${lE}</span></button>`;
+    $$('.fc-grade-btn',ctrls).forEach(btn=>{
+      btn.addEventListener('click',(e)=>{
+        e.stopPropagation();
+        gradeSrs(state.course,state.unit,idx,+btn.dataset.q);
+        advanceCard();
+      });
+    });
+  }
+}
+function flipCard(){state.cardFlipped=!state.cardFlipped;renderCard();}
+function advanceCard(){
+  const deck=getCardDeck();
+  if(state.cardIdx<deck.length-1){state.cardIdx++;state.cardFlipped=false;renderCard();}
+  else cardComplete();
+}
+function prevCard(){if(state.cardIdx>0){state.cardIdx--;state.cardFlipped=false;renderCard();}}
+
+function showCompletionScreen({title, thai, desc}){
+  $('flashcard').style.cursor='default';
+  $('flashcard').innerHTML=
+    `<div class="completion-screen"><div class="symbol">๏</div>`+
+    `<div class="title">${title}</div>`+
+    `<div class="thai">${thai}</div>`+
+    `<div class="desc">${desc}</div></div>`;
+  $('fc-controls').innerHTML='';
+}
+function cardComplete(){
+  const isReview=!!state.reviewQueue;
+  showCompletionScreen({
+    title: isReview ? '復習を完了しました' : '完了しました',
+    thai:  isReview ? 'ทบทวนเสร็จแล้ว' : 'เสร็จสิ้น',
+    desc:  isReview
+      ? '今回の復習対象を全て完了しました。<br>ホームに戻るか、別のユニットへ進みましょう。'
+      : 'このユニットの全文を確認しました。<br>クイズで定着度を確かめましょう。'
+  });
+}
+function renderReviewEmpty(){
+  $('study-counter').textContent='0 / 0';
+  showCompletionScreen({
+    title: '復習はありません',
+    thai:  'ไม่มีอะไรต้องทบทวน',
+    desc:  'このユニットには現在<br>復習対象の文がありません。<br>カードや一覧で新しい文を学習しましょう。'
+  });
+}
+
+// QUIZ
+function startQuiz(){
+  const u=currentUnit();
+  const all=u.sentences.map((s,idx)=>({s,idx}));
+  const qs=shuffle(all).slice(0,Math.min(10,all.length));
+  state.quiz={questions:qs,pool:all,current:0,correct:0,answers:[],answered:false,direction:'th2jp'};
+  renderQuizQ();
+}
+function renderQuizQ(){
+  const q=state.quiz;
+  if(q.current>=q.questions.length){renderQuizResult();return;}
+  $('study-counter').textContent=(q.current+1)+' / '+q.questions.length;
+  const cur=q.questions[q.current];const sent=cur.s;
+  q.direction=Math.random()<0.5?'th2jp':'jp2th';
+  const distract=shuffle(q.pool.filter(x=>x.idx!==cur.idx)).slice(0,3);
+  const opts=shuffle([cur,...distract]);
+
+  // Progress pips
+  let pips='<div class="quiz-progress">';
+  for(let i=0;i<q.questions.length;i++){
+    let cls='';
+    if(i<q.current) cls=q.answers[i]==='correct'?'done':'wrong';
+    else if(i===q.current) cls='current';
+    pips+=`<div class="pip ${cls}"></div>`;
+  }
+  pips+='</div>';
+
+  // Question card
+  const qh = q.direction==='th2jp'
+    ? `<div class="quiz-question"><div class="quiz-prompt">タイ語 → 日本語</div><div class="quiz-thai" id="quiz-thai">${escapeHtml(sent.th)}</div><div class="quiz-ph-small">${escapeHtml(sent.ph)}</div></div>`
+    : `<div class="quiz-question"><div class="quiz-prompt">日本語 → タイ語</div><div class="quiz-jp">${escapeHtml(sent.jp)}</div></div>`;
+
+  // Options
+  const optsHtml = opts.map(o=>{
+    const correct = o.idx===cur.idx ? '1' : '0';
+    return q.direction==='th2jp'
+      ? `<button class="quiz-option" data-correct="${correct}"><div class="opt-jp">${escapeHtml(o.s.jp)}</div></button>`
+      : `<button class="quiz-option" data-correct="${correct}"><div class="opt-thai">${escapeHtml(o.s.th)}</div><div class="opt-ph">${escapeHtml(o.s.ph)}</div></button>`;
+  }).join('');
+  const oh = `<div class="quiz-options">${optsHtml}</div><button class="quiz-next-btn" id="quiz-next-btn">次の問題へ</button>`;
+
+  $('quiz-area').innerHTML = pips+qh+oh;
+
+  if(q.direction==='th2jp'){
+    const t=$('quiz-thai');
+    t.addEventListener('click',()=>playWithHighlight(t, sent.th, 0.75));
+    setTimeout(()=>playWithHighlight(t, sent.th, 0.8), 200);
+  }
+  q.answered=false;
+  $$('.quiz-option').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      if(q.answered) return; q.answered=true;
+      const correct = opt.dataset.correct==='1';
+      $$('.quiz-option').forEach(o=>{o.classList.add('disabled'); if(o.dataset.correct==='1') o.classList.add('correct');});
+      if(!correct) opt.classList.add('wrong');
+      if(q.direction==='jp2th') speak(sent.th, 0.75);
+      if(correct){ q.correct++; q.answers.push('correct'); gradeSrs(state.course,state.unit,cur.idx,4); }
+      else      { q.answers.push('wrong');   gradeSrs(state.course,state.unit,cur.idx,1); }
+      $('quiz-next-btn').classList.add('show');
+    });
+  });
+  $('quiz-next-btn').addEventListener('click',()=>{state.quiz.current++;renderQuizQ();});
+}
+function renderQuizResult(){
+  const q=state.quiz;const t=q.questions.length;const c=q.correct;const p=Math.round(c/t*100);
+  let title,thai,m;
+  if     (p===100){title='完璧です';     thai='ยอดเยี่ยมมาก'; m='๛';}
+  else if(p>=80) {title='すばらしい';   thai='เก่งมาก';     m='๏';}
+  else if(p>=60) {title='よくできました'; thai='ดีมาก';       m='๏';}
+  else if(p>=40) {title='もう一歩';      thai='ลองอีกครั้ง';  m='๏';}
+  else           {title='練習しましょう'; thai='ฝึกฝนต่อไป'; m='๏';}
+  $('quiz-area').innerHTML=
+    `<div class="quiz-result">`+
+      `<div class="quiz-result-emoji">${m}</div>`+
+      `<div class="quiz-result-title">${title}</div>`+
+      `<div class="quiz-result-thai">${thai}</div>`+
+      `<div class="quiz-result-score">${c} / ${t}</div>`+
+      `<div class="quiz-result-detail">正答率 ${p}%</div>`+
+      `<div class="quiz-result-actions">`+
+        `<button class="retry" id="quiz-retry">もう一度</button>`+
+        `<button class="next" id="quiz-back">レッスンへ戻る</button>`+
+      `</div></div>`;
+  $('quiz-retry').addEventListener('click',()=>startQuiz());
+  $('quiz-back').addEventListener('click',()=>document.querySelector('.mode-tab[data-mode="list"]').click());
+  const s2=getUnitStats(state.course,state.unit);
+  $('study-counter').textContent=s2.learned+' / '+s2.total;
+}
+
+// EVENTS
+$$('.back-btn').forEach(b=>b.addEventListener('click',()=>{
+  const t=b.dataset.back;
+  if(t==='home'){renderHome();showScreen('home');}
+  else if(t==='units'){openCourse(state.course);}
+}));
+$$('.mode-tab').forEach(t=>t.addEventListener('click',()=>{
+  $$('.mode-tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');showMode(t.dataset.mode);
+}));
+$('flashcard').addEventListener('click',(e)=>{
+  if(e.target.id==='fc-thai'){
+    // Use the current deck item — in review mode state.cardIdx indexes the queue, not u.sentences.
+    const item=currentItem();
+    if(!item) return;
+    playWithHighlight(e.target, item.s.th, 0.75);
+    return;
+  }
+  flipCard();
+});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAll();});
+
+// INIT
+initVoices();
+loadManifest();  // Chirp 3 HD MP3マニフェストを読み込み
+loadCourses().then(renderHome).catch(err=>{
+  console.error('Failed to load courses:',err);
+  const list=$('course-list');
+  if(list) list.innerHTML='<div class="notice">コースデータを読み込めませんでした。ページを再読み込みしてください。</div>';
+});
+
+// PWA — service worker registration
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./service-worker.js')
+    .then(reg=>console.log('SW registered, scope:',reg.scope))
+    .catch(err=>console.log('SW registration failed:',err));
+}
+</script>
+</body>
+</html>

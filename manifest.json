@@ -1,0 +1,18 @@
+{
+  "name": "タイ語マスター",
+  "short_name": "タイ語マスター",
+  "description": "เรียนภาษาไทย — 日本語話者のための例文ベースのタイ語学習アプリ",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4efe4",
+  "theme_color": "#f4efe4",
+  "lang": "ja",
+  "dir": "ltr",
+  "categories": ["education", "books"],
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

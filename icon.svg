@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#f4efe4"/>
+  <rect x="56" y="56" width="400" height="400" rx="56" fill="#a8391a"/>
+  <rect x="80" y="80" width="352" height="352" rx="40" fill="none" stroke="#b8955a" stroke-width="2" opacity="0.55"/>
+  <text x="256" y="318" text-anchor="middle" font-family="'Hiragino Mincho Pro','Yu Mincho','Noto Serif JP',serif" font-weight="700" font-size="232" fill="#fdfaf3">タ</text>
+  <text x="256" y="408" text-anchor="middle" font-family="'Noto Serif Thai','Sarabun',serif" font-size="44" fill="#d9c89a" letter-spacing="2">ไทย</text>
+</svg>
