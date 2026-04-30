@@ -7,7 +7,7 @@
 //   - Other static (icon.svg, manifest.json): cache-first
 // Bump VERSION whenever shell assets change so old caches get evicted.
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL_CACHE = 'thai-shell-' + VERSION;
 const DATA_CACHE  = 'thai-data-'  + VERSION;
 const FONT_CACHE  = 'thai-font-'  + VERSION;
@@ -17,7 +17,9 @@ const SHELL_URLS = [
   './',
   './index.html',
   './manifest.json',
-  './icon.svg'
+  './icon.svg',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
