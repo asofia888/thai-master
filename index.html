@@ -106,6 +106,7 @@
   .course-card::before{
     content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ribbon);
   }
+  .course-card.script{--ribbon:linear-gradient(to right,#5a7a3a,#8aa860);}
   .course-card.beginner{--ribbon:linear-gradient(to right,#b8955a,#d9c89a);}
   .course-card.intermediate{--ribbon:linear-gradient(to right,#c86432,#e88e5a);}
   .course-card.advanced{--ribbon:linear-gradient(to right,#a8391a,#6b2010);}
@@ -361,6 +362,30 @@
     letter-spacing:.05em;font-weight:500;
   }
 
+  /* Global review CTA on home */
+  .review-cta{
+    display:flex;align-items:center;justify-content:space-between;
+    width:calc(100% - 32px);margin:-8px 16px 24px;padding:16px 20px;
+    background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;
+    box-shadow:var(--shadow-md);transition:transform .15s,opacity .2s;
+  }
+  .review-cta:active{transform:scale(.98);}
+  .review-cta .label{font-family:'Shippori Mincho',serif;font-size:14px;font-weight:600;letter-spacing:.12em;display:flex;align-items:center;gap:10px;}
+  .review-cta .label svg{width:16px;height:16px;}
+  .review-cta .count{font-family:'Shippori Mincho',serif;font-size:12px;letter-spacing:.1em;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:10px;font-variant-numeric:tabular-nums;}
+
+  /* Data export / import */
+  .data-controls{display:flex;gap:10px;padding:0 16px;}
+  .data-btn{
+    flex:1;padding:12px;font-family:'Shippori Mincho',serif;font-size:12px;font-weight:500;letter-spacing:.1em;
+    background:var(--bg-card);border:1px solid var(--line);border-radius:6px;color:var(--ink-soft);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s,background .2s;
+  }
+  .data-btn:active{transform:scale(.98);background:var(--bg-sub);}
+  .data-btn svg{width:14px;height:14px;}
+  .data-msg{margin:10px 16px 0;font-size:11px;color:var(--green);letter-spacing:.05em;text-align:center;min-height:16px;line-height:1.6;}
+  .data-msg.error{color:var(--accent);}
+
   /* Completion / empty screen — shared by cardComplete & review-empty */
   .completion-screen{
     flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -387,8 +412,22 @@
       <div class="stat-item"><div class="stat-num" id="stat-due">0</div><div class="stat-label">今日復習</div></div>
       <div class="stat-item"><div class="stat-num" id="stat-percent">0%</div><div class="stat-label">進捗</div></div>
     </div>
+    <div id="home-review-cta"></div>
     <div class="section-title">コース・หลักสูตร</div>
     <div class="courses" id="course-list"></div>
+    <div class="section-title">データ・ข้อมูล</div>
+    <div class="data-controls">
+      <button class="data-btn" id="export-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        進捗をエクスポート
+      </button>
+      <button class="data-btn" id="import-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        進捗をインポート
+      </button>
+      <input type="file" id="import-file" accept=".json,application/json" hidden>
+    </div>
+    <div class="data-msg" id="data-msg"></div>
     <div class="footer-mark">
       <div class="symbol">๏</div>
       <div class="text">ขอให้สนุกกับการเรียน</div>
@@ -456,7 +495,7 @@
 'use strict';
 let COURSES = {};
 const COURSES_URL = './courses.json';
-const state = {course:null, unit:null, mode:'list', cardIdx:0, cardFlipped:false, quiz:null, reviewQueue:null};
+const state = {course:null, unit:null, mode:'list', cardIdx:0, cardFlipped:false, quiz:null, reviewQueue:null, globalQueue:null};
 
 // DOM shorthand
 const $  = (id) => document.getElementById(id);
@@ -491,6 +530,70 @@ function loadProgress(){
 function saveProgress(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(progress));}catch{}}
 const progress = loadProgress();
 function sentKey(c,u,i){return c+'/'+u+'/'+i;}
+
+// EXPORT / IMPORT
+function showDataMsg(text,isError){
+  const el=$('data-msg');
+  el.textContent=text;
+  el.classList.toggle('error',!!isError);
+  clearTimeout(showDataMsg._t);
+  showDataMsg._t=setTimeout(()=>{el.textContent='';},6000);
+}
+function exportProgress(){
+  const data={
+    app:'thai-master',version:2,
+    exportedAt:new Date().toISOString(),
+    progress:{learned:progress.learned,srs:progress.srs}
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='thai-master-progress-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showDataMsg('エクスポートしました(学習済 '+Object.keys(progress.learned).length+' 件)');
+}
+// Newer-wins merge: an SRS entry from the file replaces the local one only if
+// its lastReviewed timestamp is the same or later, so importing an old backup
+// never rolls back fresher local study history.
+function mergeProgress(p){
+  let nl=0,ns=0;
+  Object.keys(p.learned||{}).forEach(k=>{
+    if(!progress.learned[k]) nl++;
+    progress.learned[k]=1;
+  });
+  Object.keys(p.srs||{}).forEach(k=>{
+    const s=p.srs[k];
+    if(!s||typeof s!=='object') return;
+    const cur=progress.srs[k];
+    if(!cur||(+s.l||0)>=(+cur.l||0)){
+      progress.srs[k]={e:+s.e||2.5,i:+s.i||0,r:+s.r||0,d:+s.d||0,l:+s.l||0};
+      ns++;
+    }
+  });
+  return {learned:nl,srs:ns};
+}
+function importProgressFile(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      const p=data.progress||data;   // accept a raw {learned,srs} object too
+      if(!p||typeof p.learned!=='object'||typeof p.srs!=='object') throw new Error('format');
+      const total=Object.keys(p.learned).length;
+      if(!confirm('バックアップから '+total+' 件の学習記録を読み込みます。\n現在の進捗と統合します(新しい記録が優先されます)。よろしいですか?')) return;
+      const r=mergeProgress(p);
+      saveProgress();
+      renderHome();
+      showDataMsg('インポート完了:学習済 '+r.learned+' 件を追加、復習データ '+r.srs+' 件を更新しました');
+    }catch(e){
+      showDataMsg('読み込めませんでした。タイ語マスターでエクスポートしたJSONファイルを選択してください。',true);
+    }
+  };
+  reader.onerror=()=>showDataMsg('ファイルを読み込めませんでした。',true);
+  reader.readAsText(file);
+}
 function isLearned(c,u,i){return !!progress.learned[sentKey(c,u,i)];}
 function setLearned(c,u,i,v){
   const k=sentKey(c,u,i);
@@ -656,7 +759,7 @@ function shuffle(a){const x=a.slice();for(let i=x.length-1;i>0;i--){const j=Math
 
 // Navigation context
 const currentUnit = () => COURSES[state.course].units.find(u => u.id === state.unit);
-const currentItem = () => getCardDeck()[state.cardIdx];   // {s, origIdx}
+const currentItem = () => getCardDeck()[state.cardIdx];   // {s, c, u, i}
 
 // Audio + visual highlight helpers
 function clearPlaying(root){ $$('.playing', root).forEach(x => x.classList.remove('playing')); }
@@ -671,17 +774,31 @@ function showScreen(n){$$('.screen').forEach(s=>s.classList.remove('active'));$(
 // HOME
 function renderHome(){
   const g=getGlobalStats();
+  const due=getGlobalDueCount();
   $('stat-learned').textContent=g.learned;
-  $('stat-due').textContent=getGlobalDueCount();
+  $('stat-due').textContent=due;
   $('stat-percent').textContent=g.percent+'%';
+  const cta=$('home-review-cta');
+  if(due>0){
+    cta.innerHTML=
+      `<button class="review-cta" id="review-cta-btn">`+
+        `<span class="label">${ICONS.clock}今日の復習を始める</span>`+
+        `<span class="count">${due} 件</span>`+
+      `</button>`;
+    $('review-cta-btn').addEventListener('click',startGlobalReview);
+  }else{
+    cta.innerHTML='';
+  }
   const w=$('course-list');w.innerHTML='';
-  Object.keys(COURSES).forEach((key,i)=>{
+  const keys=Object.keys(COURSES);
+  const totalLabel=String(keys.length).padStart(2,'0');
+  keys.forEach((key,i)=>{
     const c=COURSES[key];const s=getCourseStats(key);const p=s.total?Math.round(s.learned/s.total*100):0;
     const card=document.createElement('button');card.className='course-card '+key;
     card.innerHTML=
       `<div class="course-head">`+
         `<div><div class="course-level">${escapeHtml(c.title)}</div><div class="course-thai">${escapeHtml(c.thaiTitle)}</div></div>`+
-        `<div class="course-num">${String(i+1).padStart(2,'0')} / 03</div>`+
+        `<div class="course-num">${String(i+1).padStart(2,'0')} / ${totalLabel}</div>`+
       `</div>`+
       `<div class="course-desc">${escapeHtml(c.description)}</div>`+
       `<div class="progress-row"><div class="progress-track"><div class="progress-fill" style="width:${p}%"></div></div><div class="progress-text">${s.learned} / ${s.total}</div></div>`;
@@ -716,13 +833,19 @@ function openCourse(key){
 }
 
 function openUnit(uid){
+  endGlobalReview();
   state.unit=uid;state.mode='list';state.cardIdx=0;state.cardFlipped=false;state.quiz=null;state.reviewQueue=null;
   const u=currentUnit();
   $('study-title').textContent=u.title;
   $('study-thai-title').textContent=u.thaiTitle;
   $$('.mode-tab').forEach(t=>t.classList.remove('active'));
   document.querySelector('.mode-tab[data-mode="list"]').classList.add('active');
-  showVoiceNotice($('notice-area'));
+  if(state.course==='script' && state.unit!=='s09'){
+    // Letter names are not in the HD audio manifest — they play via the device's Thai TTS voice.
+    $('notice-area').innerHTML='<div class="notice">文字の読み上げは端末のタイ語音声(音声合成)を使用します。端末にタイ語音声がない場合は音が出ないことがあります。</div>';
+  }else{
+    showVoiceNotice($('notice-area'));
+  }
   showMode('list');
   showScreen('study');
 }
@@ -761,9 +884,45 @@ function showMode(m){
 }
 
 function getCardDeck(){
+  if(state.globalQueue) return state.globalQueue;
   const u=currentUnit();
-  if(state.reviewQueue) return state.reviewQueue.map(i=>({s:u.sentences[i], origIdx:i}));
-  return u.sentences.map((s,i)=>({s, origIdx:i}));
+  if(state.reviewQueue) return state.reviewQueue.map(i=>({s:u.sentences[i], c:state.course, u:state.unit, i}));
+  return u.sentences.map((s,i)=>({s, c:state.course, u:state.unit, i}));
+}
+
+// GLOBAL REVIEW — all due cards across every course/unit, oldest due first
+function getAllDueItems(){
+  const items=[];
+  Object.keys(COURSES).forEach(c=>{
+    COURSES[c].units.forEach(u=>{
+      u.sentences.forEach((s,i)=>{
+        if(isDue(c,u.id,i)) items.push({s, c, u:u.id, i, unitTitle:u.title, due:progress.srs[sentKey(c,u.id,i)].d});
+      });
+    });
+  });
+  items.sort((a,b)=>a.due-b.due);
+  return items;
+}
+function startGlobalReview(){
+  const q=getAllDueItems();
+  if(q.length===0) return;
+  state.course=null;state.unit=null;state.quiz=null;state.reviewQueue=null;
+  state.globalQueue=q;state.mode='review';state.cardIdx=0;state.cardFlipped=false;
+  $('study-title').textContent='今日の復習';
+  $('study-thai-title').textContent='ทบทวนวันนี้';
+  document.querySelector('.mode-tabs').style.display='none';
+  showVoiceNotice($('notice-area'));
+  $('sentence-list').style.display='none';
+  $('card-area').style.display='flex';
+  $('quiz-area').style.display='none';
+  $('flashcard').innerHTML=FLASHCARD_TEMPLATE;
+  $('flashcard').style.cursor='pointer';
+  showScreen('study');
+  renderCard();
+}
+function endGlobalReview(){
+  state.globalQueue=null;
+  document.querySelector('.mode-tabs').style.display='';
 }
 
 // LIST
@@ -783,6 +942,12 @@ function renderList(){
   $('study-counter').textContent=stats.learned+' / '+stats.total;
   $('study-meta').textContent=u.thaiTitle;
   const w=$('sentence-list');w.innerHTML='';
+  if(u.note){
+    const n=document.createElement('div');
+    n.className='notice';n.style.margin='0 0 14px';
+    n.textContent=u.note;
+    w.appendChild(n);
+  }
   u.sentences.forEach((s,i)=>{
     const learned=isLearned(state.course,state.unit,i);
     const {toggle, list}=buildVocabHtml(s,i);
@@ -847,12 +1012,11 @@ function renderList(){
 
 // CARD
 function renderCard(){
-  const u=currentUnit();
   const deck=getCardDeck();
   if(deck.length===0){renderReviewEmpty();return;}
   const item=deck[state.cardIdx];const s=item.s;
   $('study-counter').textContent=(state.cardIdx+1)+' / '+deck.length;
-  $('study-meta').textContent=u.thaiTitle;
+  $('study-meta').textContent=state.globalQueue ? (item.unitTitle||'') : currentUnit().thaiTitle;
   $('fc-num').textContent='№ '+String(state.cardIdx+1).padStart(3,'0');
   $('fc-side').textContent=state.cardFlipped?'BACK':'FRONT';
   $('fc-thai').textContent=s.th;
@@ -874,10 +1038,10 @@ function renderCardControls(item){
     $('fc-reveal').addEventListener('click',(e)=>{e.stopPropagation();flipCard();});
   }else{
     ctrls.className='fc-grade-controls';
-    const idx=item.origIdx;
-    const lA=previewInterval(state.course,state.unit,idx,1);
-    const lG=previewInterval(state.course,state.unit,idx,4);
-    const lE=previewInterval(state.course,state.unit,idx,5);
+    const {c,u,i}=item;
+    const lA=previewInterval(c,u,i,1);
+    const lG=previewInterval(c,u,i,4);
+    const lE=previewInterval(c,u,i,5);
     ctrls.innerHTML=
       `<button class="fc-grade-btn again" data-q="1"><span class="label">もう一度</span><span class="interval">${lA}</span></button>`+
       `<button class="fc-grade-btn good"  data-q="4"><span class="label">正解</span><span class="interval">${lG}</span></button>`+
@@ -885,7 +1049,7 @@ function renderCardControls(item){
     $$('.fc-grade-btn',ctrls).forEach(btn=>{
       btn.addEventListener('click',(e)=>{
         e.stopPropagation();
-        gradeSrs(state.course,state.unit,idx,+btn.dataset.q);
+        gradeSrs(c,u,i,+btn.dataset.q);
         advanceCard();
       });
     });
@@ -909,6 +1073,14 @@ function showCompletionScreen({title, thai, desc}){
   $('fc-controls').innerHTML='';
 }
 function cardComplete(){
+  if(state.globalQueue){
+    showCompletionScreen({
+      title: '今日の復習を完了しました',
+      thai:  'ทบทวนเสร็จแล้ว',
+      desc:  '本日の復習対象をすべて完了しました。<br>おつかれさまでした。'
+    });
+    return;
+  }
   const isReview=!!state.reviewQueue;
   showCompletionScreen({
     title: isReview ? '復習を完了しました' : '完了しました',
@@ -1019,7 +1191,11 @@ function renderQuizResult(){
 $$('.back-btn').forEach(b=>b.addEventListener('click',()=>{
   const t=b.dataset.back;
   if(t==='home'){renderHome();showScreen('home');}
-  else if(t==='units'){openCourse(state.course);}
+  else if(t==='units'){
+    // Global review is entered from home, so back returns there.
+    if(state.globalQueue||!state.course){endGlobalReview();renderHome();showScreen('home');}
+    else openCourse(state.course);
+  }
 }));
 $$('.mode-tab').forEach(t=>t.addEventListener('click',()=>{
   $$('.mode-tab').forEach(x=>x.classList.remove('active'));
@@ -1036,8 +1212,16 @@ $('flashcard').addEventListener('click',(e)=>{
   flipCard();
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAll();});
+$('export-btn').addEventListener('click',exportProgress);
+$('import-btn').addEventListener('click',()=>$('import-file').click());
+$('import-file').addEventListener('change',(e)=>{
+  const f=e.target.files[0];
+  if(f) importProgressFile(f);
+  e.target.value='';   // allow re-selecting the same file
+});
 
 // INIT
+if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
 initVoices();
 loadManifest();  // Chirp 3 HD MP3マニフェストを読み込み
 loadCourses().then(renderHome).catch(err=>{
