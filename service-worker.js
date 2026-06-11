@@ -7,7 +7,7 @@
 //   - Other static (icon.svg, manifest.json): cache-first
 // Bump VERSION whenever shell assets change so old caches get evicted.
 
-const VERSION = 'v5';
+const VERSION = 'v6';
 const SHELL_CACHE = 'thai-shell-' + VERSION;
 const DATA_CACHE  = 'thai-data-'  + VERSION;
 const FONT_CACHE  = 'thai-font-'  + VERSION;
