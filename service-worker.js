@@ -7,11 +7,17 @@
 //   - Other static (icon.svg, manifest.json): cache-first
 // Bump VERSION whenever shell assets change so old caches get evicted.
 
-const VERSION = 'v6';
+const VERSION = 'v7';
 const SHELL_CACHE = 'thai-shell-' + VERSION;
-const DATA_CACHE  = 'thai-data-'  + VERSION;
-const FONT_CACHE  = 'thai-font-'  + VERSION;
-const AUDIO_CACHE = 'thai-audio-' + VERSION;
+// data/font/audio は VERSION に連動させない:
+//  - audio: ファイル名がハッシュ化&immutableなので更新の概念がなく、
+//    連動させるとアプリ更新のたびに保存済み音声(最大33MB)が消えてしまう
+//  - data:  stale-while-revalidate が鮮度を担保する
+//  - font:  Google Fontsのバイナリは実質不変
+// "-v6" は旧命名の名残 — 既存ユーザーのキャッシュを引き継ぐため据え置き。
+const DATA_CACHE  = 'thai-data-v6';
+const FONT_CACHE  = 'thai-font-v6';
+const AUDIO_CACHE = 'thai-audio-v6';
 
 const SHELL_URLS = [
   './',
@@ -100,7 +106,10 @@ async function networkFirst(req, cacheName) {
 async function staleWhileRevalidate(req, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(req);
-  const network = fetch(req).then(res => {
+  // no-cache: HTTPキャッシュを条件付き検証(ETag)で必ず確かめる。
+  // fetch(req)のままだとページ側のcacheモードを引き継ぎ、古いHTTPキャッシュを
+  // 再取得するだけで「再検証」にならないことがある。
+  const network = fetch(req.url, { cache: 'no-cache' }).then(res => {
     if (res && res.ok) cache.put(req, res.clone());
     return res;
   }).catch(() => null);

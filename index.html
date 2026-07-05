@@ -2,8 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#f4efe4">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4efe4">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#17120d">
 <title>タイ語マスター — เรียนภาษาไทย</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
@@ -22,13 +23,35 @@
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   :root{
     --bg:#f4efe4;--bg-card:#fdfaf3;--bg-sub:#faf5ea;
-    --ink:#1a1410;--ink-soft:#5a4f42;--ink-muted:#8b7e6d;--ink-faint:#b5a78f;
+    --ink:#1a1410;--ink-soft:#5a4f42;--ink-muted:#7a6e5d;--ink-faint:#b5a78f;
     --line:#e2d8c2;--line-soft:#ecdfc8;
     --accent:#a8391a;--accent-warm:#c86432;--accent-soft:rgba(168,57,26,0.08);
+    --accent-fill:#a8391a;--green-fill:#5a7a3a;
+    --ok-bg:rgba(90,122,58,0.08);--ng-bg:rgba(168,57,26,0.06);
     --gold:#b8955a;--gold-soft:#d9c89a;--green:#5a7a3a;
     --shadow-sm:0 1px 2px rgba(26,20,16,0.04);
     --shadow-md:0 1px 2px rgba(26,20,16,0.03),0 4px 16px rgba(26,20,16,0.04);
     --shadow-lg:0 2px 4px rgba(26,20,16,0.04),0 12px 32px rgba(26,20,16,0.06);
+  }
+  /* --accent / --green は前景(文字)用、--accent-fill / --green-fill は白文字を載せる塗り用。
+     ダークモードでは前景を明るく・塗りは暗めに保ってコントラストを両立させる。 */
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#17120d;--bg-card:#201a14;--bg-sub:#282017;
+      --ink:#ece3d2;--ink-soft:#c6b9a2;--ink-muted:#a3957e;--ink-faint:#6e6250;
+      --line:#3a3126;--line-soft:#322a20;
+      --accent:#e0764e;--accent-warm:#e6976a;--accent-soft:rgba(224,118,78,0.12);
+      --accent-fill:#9c3517;--green-fill:#4a6330;
+      --ok-bg:rgba(147,181,110,0.14);--ng-bg:rgba(224,118,78,0.12);
+      --gold:#cfa76a;--gold-soft:#8a7449;--green:#93b56e;
+      --shadow-sm:0 1px 2px rgba(0,0,0,0.25);
+      --shadow-md:0 1px 2px rgba(0,0,0,0.2),0 4px 16px rgba(0,0,0,0.25);
+      --shadow-lg:0 2px 4px rgba(0,0,0,0.25),0 12px 32px rgba(0,0,0,0.35);
+    }
+    body::before{
+      background-image:radial-gradient(circle at 20% 10%,rgba(207,167,106,0.05) 0%,transparent 40%),
+        radial-gradient(circle at 85% 70%,rgba(224,118,78,0.04) 0%,transparent 45%);
+    }
   }
   html{background:var(--bg);}
   body{
@@ -200,7 +223,7 @@
   .icon-btn svg{width:14px;height:14px;}
   .icon-btn.slow{color:var(--gold);}
   .icon-btn.learned{background:var(--bg-sub);}
-  .icon-btn.learned.active{background:var(--green);color:#fff;border-color:var(--green);}
+  .icon-btn.learned.active{background:var(--green-fill);color:#fff;border-color:var(--green-fill);}
 
   .vocab-toggle{
     flex:1;text-align:left;padding:8px 12px;font-size:12.5px;font-weight:500;
@@ -247,7 +270,7 @@
   .fc-thai.playing{background:var(--accent-soft);color:var(--accent);}
   .fc-ph{font-family:'Inter',sans-serif;font-size:15px;color:var(--ink-soft);letter-spacing:.02em;margin-bottom:24px;font-style:italic;}
   .fc-jp{font-family:'Shippori Mincho',serif;font-size:19px;font-weight:600;color:var(--accent);letter-spacing:.06em;line-height:1.5;transition:opacity .3s,filter .3s;}
-  .fc-hint{margin-top:24px;font-size:12px;color:var(--ink-faint);letter-spacing:.25em;text-transform:uppercase;}
+  .fc-hint{margin-top:24px;font-size:12px;color:var(--ink-muted);letter-spacing:.25em;text-transform:uppercase;}
   .fc-hidden{opacity:.15;filter:blur(6px);user-select:none;}
 
   .fc-controls{display:flex;gap:12px;margin-top:20px;}
@@ -291,9 +314,9 @@
   .quiz-option .opt-thai{font-family:'Noto Sans Thai',sans-serif;font-weight:500;font-size:17px;color:var(--ink);margin-bottom:2px;line-height:1.4;}
   .quiz-option .opt-jp{font-family:'Shippori Mincho',serif;font-size:14px;font-weight:500;color:var(--ink);line-height:1.4;}
   .quiz-option .opt-ph{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--ink-muted);letter-spacing:.02em;margin-top:2px;font-style:italic;}
-  .quiz-option.correct{background:rgba(90,122,58,0.08);border-color:var(--green);}
+  .quiz-option.correct{background:var(--ok-bg);border-color:var(--green);}
   .quiz-option.correct::after{content:'✓';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--green);font-size:19px;font-weight:bold;}
-  .quiz-option.wrong{background:rgba(168,57,26,0.06);border-color:var(--accent);}
+  .quiz-option.wrong{background:var(--ng-bg);border-color:var(--accent);}
   .quiz-option.wrong::after{content:'×';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--accent);font-size:22px;}
   .quiz-option.disabled{pointer-events:none;}
 
@@ -331,11 +354,33 @@
   .footer-mark .symbol{font-family:'Noto Serif Thai',serif;font-size:15px;color:var(--gold);margin-bottom:6px;}
   .footer-mark .text{font-family:'Noto Serif Thai',serif;font-size:12.5px;letter-spacing:.2em;}
 
+  /* Keyboard focus */
+  button:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* Listening quiz */
+  .quiz-listen-btn{
+    width:64px;height:64px;margin:4px auto 6px;border-radius:50%;
+    background:var(--bg-sub);border:1px solid var(--line);color:var(--accent);
+    display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:transform .15s,background .2s;
+  }
+  .quiz-listen-btn:active{transform:scale(.93);}
+  .quiz-listen-btn.playing{background:var(--accent-soft);}
+  .quiz-listen-btn svg{width:26px;height:26px;}
+  .quiz-reveal-hidden{display:none;}
+
+  /* Course audio bulk download */
+  .audio-dl{padding:0 16px;margin:2px 0 6px;}
+  .audio-dl .data-btn{width:100%;}
+  .audio-dl .data-msg{margin:8px 0 0;}
+
   @media (max-width:380px){
     .home-header h1{font-size:24px;}
     .sent-thai{font-size:21px;}
     .fc-thai{font-size:22px;}
     .quiz-thai{font-size:19px;}
+    .stats-bar{padding:14px 10px;}
+    .stat-num{font-size:19px;}
   }
 
   /* SRS — grade buttons */
@@ -357,7 +402,7 @@
 
   /* SRS — due badge on unit cards */
   .due-badge{
-    display:inline-block;font-size:11px;color:#fff;background:var(--accent);
+    display:inline-block;font-size:11px;color:#fff;background:var(--accent-fill);
     padding:2px 6px;border-radius:8px;margin-top:5px;font-variant-numeric:tabular-nums;
     letter-spacing:.05em;font-weight:500;
   }
@@ -366,7 +411,7 @@
   .review-cta{
     display:flex;align-items:center;justify-content:space-between;
     width:calc(100% - 32px);margin:-8px 16px 24px;padding:16px 20px;
-    background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;
+    background:var(--accent-fill);color:#fff;border:none;border-radius:6px;cursor:pointer;
     box-shadow:var(--shadow-md);transition:transform .15s,opacity .2s;
   }
   .review-cta:active{transform:scale(.98);}
@@ -411,6 +456,7 @@
       <div class="stat-item"><div class="stat-num" id="stat-learned">0</div><div class="stat-label">学習済</div></div>
       <div class="stat-item"><div class="stat-num" id="stat-due">0</div><div class="stat-label">今日復習</div></div>
       <div class="stat-item"><div class="stat-num" id="stat-percent">0%</div><div class="stat-label">進捗</div></div>
+      <div class="stat-item"><div class="stat-num" id="stat-streak">0</div><div class="stat-label">連続日数</div></div>
     </div>
     <div id="home-review-cta"></div>
     <div class="section-title">コース・หลักสูตร</div>
@@ -450,6 +496,13 @@
       <h2 id="banner-title">初級</h2>
       <div class="thai" id="banner-thai">ระดับต้น</div>
     </div>
+    <div class="audio-dl">
+      <button class="data-btn" id="course-audio-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span id="audio-dl-label">音声をオフライン保存</span>
+      </button>
+      <div class="data-msg" id="audio-dl-msg"></div>
+    </div>
     <div class="units" id="unit-list"></div>
   </section>
 
@@ -476,7 +529,7 @@
     <div id="notice-area"></div>
     <div class="sentence-list" id="sentence-list" style="display:block"></div>
     <div class="card-area" id="card-area" style="display:none">
-      <div class="flashcard" id="flashcard">
+      <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="フラッシュカード。タップまたはEnterで意味を表示">
         <span class="fc-num" id="fc-num">01</span>
         <span class="fc-side" id="fc-side">FRONT</span>
         <div class="fc-thai" id="fc-thai">—</div>
@@ -495,7 +548,7 @@
 'use strict';
 let COURSES = {};
 const COURSES_URL = './courses.json';
-const state = {course:null, unit:null, mode:'list', cardIdx:0, cardFlipped:false, quiz:null, reviewQueue:null, globalQueue:null};
+const state = {course:null, unit:null, mode:'list', cardIdx:0, cardFlipped:false, completed:false, quiz:null, reviewQueue:null, globalQueue:null};
 
 // DOM shorthand
 const $  = (id) => document.getElementById(id);
@@ -507,11 +560,14 @@ const ICONS = {
   forward: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>',
   clock:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
   check:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
-  speaker: '<svg class="speaker-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>'
+  speaker: '<svg class="speaker-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>',
+  speakerLg: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>'
 };
 
 async function loadCourses(){
-  const res = await fetch(COURSES_URL,{cache:'force-cache'});
+  // force-cacheは使わない: HTTPキャッシュの古い内容が固定化され、コース更新が届かなくなる。
+  // 速度はSWのstale-while-revalidateが担保する。
+  const res = await fetch(COURSES_URL);
   if(!res.ok) throw new Error('courses.json: '+res.status);
   COURSES = await res.json();
 }
@@ -524,8 +580,9 @@ function loadProgress(){
     const p=r?JSON.parse(r):{};
     if(!p.learned) p.learned={};
     if(!p.srs) p.srs={};
+    if(!p.days) p.days={};
     return p;
-  }catch{return{learned:{},srs:{}};}
+  }catch{return{learned:{},srs:{},days:{}};}
 }
 function saveProgress(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(progress));}catch{}}
 const progress = loadProgress();
@@ -541,9 +598,9 @@ function showDataMsg(text,isError){
 }
 function exportProgress(){
   const data={
-    app:'thai-master',version:2,
+    app:'thai-master',version:3,
     exportedAt:new Date().toISOString(),
-    progress:{learned:progress.learned,srs:progress.srs}
+    progress:{learned:progress.learned,srs:progress.srs,days:progress.days||{}}
   };
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
@@ -571,6 +628,12 @@ function mergeProgress(p){
       progress.srs[k]={e:+s.e||2.5,i:+s.i||0,r:+s.r||0,d:+s.d||0,l:+s.l||0};
       ns++;
     }
+  });
+  // 学習日ごとの回数はストリーク用 — 日付キーのみ受け入れ、大きい方を残す
+  Object.keys(p.days||{}).forEach(k=>{
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(k)) return;
+    const v=Math.floor(+p.days[k]||0);
+    if(v>0) progress.days[k]=Math.max(progress.days[k]||0,v);
   });
   return {learned:nl,srs:ns};
 }
@@ -615,6 +678,15 @@ function getGlobalStats(){let t=0,l=0;Object.keys(COURSES).forEach(k=>{const s=g
 // SRS — SM-2 (lite). State per sentence: e(ase), i(nterval days), r(eps), d(ue ms), l(astReviewed ms).
 // Quality grades used by UI: 1=Again, 4=Good, 5=Easy.
 const DAY_MS=86400000;
+// 次回間隔(日)の計算。gradeSrsとpreviewIntervalで共用し、表示と実際のズレを防ぐ。
+function nextIntervalDays(s,q){
+  let i;
+  if(s.r===0) i=1;
+  else if(s.r===1) i=6;
+  else i=Math.max(1,Math.round(s.i*s.e));
+  if(q===5) i=Math.max(i+1,Math.round(i*1.3));   // easy bonus
+  return i;
+}
 function gradeSrs(c,u,i,q){
   const k=sentKey(c,u,i);
   const now=Date.now();
@@ -623,10 +695,7 @@ function gradeSrs(c,u,i,q){
     s.r=0;s.i=0;
     s.d=now+10*60*1000;          // 10-min relearn
   }else{
-    if(s.r===0)s.i=1;
-    else if(s.r===1)s.i=6;
-    else s.i=Math.max(1,Math.round(s.i*s.e));
-    if(q===5)s.i=Math.max(s.i+1,Math.round(s.i*1.3));   // easy bonus
+    s.i=nextIntervalDays(s,q);
     s.r+=1;
     s.d=now+s.i*DAY_MS;
   }
@@ -634,18 +703,28 @@ function gradeSrs(c,u,i,q){
   s.l=now;
   progress.srs[k]=s;
   if(s.r>=1) progress.learned[k]=1;
+  bumpDailyActivity(now);
   saveProgress();
 }
 function isDue(c,u,i){const s=progress.srs[sentKey(c,u,i)];return !!s && s.d<=Date.now();}
 function previewInterval(c,u,i,q){
-  const orig=progress.srs[sentKey(c,u,i)]||{e:2.5,i:0,r:0,d:0,l:0};
-  const s={...orig};
   if(q<3) return '10分';
-  if(s.r===0) s.i=1;
-  else if(s.r===1) s.i=6;
-  else s.i=Math.max(1,Math.round(s.i*s.e));
-  if(q===5) s.i=Math.max(s.i+1,Math.round(s.i*1.3));
-  return s.i+'日';
+  const s=progress.srs[sentKey(c,u,i)]||{e:2.5,i:0,r:0,d:0,l:0};
+  return nextIntervalDays(s,q)+'日';
+}
+
+// STREAK — 日別の学習回数を記録し、連続学習日数を計算する
+function dayKey(ts){const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function bumpDailyActivity(now){
+  const k=dayKey(now);
+  progress.days[k]=(progress.days[k]||0)+1;
+}
+function getStreak(){
+  let t=Date.now();
+  if(!progress.days[dayKey(t)]) t-=DAY_MS;   // 今日まだ学習していなければ昨日から数える
+  let n=0;
+  while(progress.days[dayKey(t)]){n++;t-=DAY_MS;}
+  return n;
 }
 function getUnitDueCount(c,uid){
   const u=COURSES[c].units.find(x=>x.id===uid);if(!u)return 0;
@@ -665,14 +744,14 @@ const MANIFEST_URL = './audio-manifest.json';
 function loadVoices(){if(!('speechSynthesis' in window))return false;const v=speechSynthesis.getVoices();if(v.length===0)return false;thaiVoice=v.find(x=>x.lang&&x.lang.toLowerCase().startsWith('th'))||null;return true;}
 function initVoices(){if(!('speechSynthesis' in window))return;if(!loadVoices())speechSynthesis.onvoiceschanged=loadVoices;}
 
-// マニフェスト読み込み(初回1回のみ)
+// マニフェスト読み込み(成功するまで再試行可能。force-cacheは更新が固定化されるため使わない)
 async function loadManifest(){
   if(manifestLoaded) return;
-  manifestLoaded = true;
   try{
-    const res = await fetch(MANIFEST_URL,{cache:'force-cache'});
+    const res = await fetch(MANIFEST_URL);
     if(res.ok){
       audioManifest = await res.json();
+      manifestLoaded = true;
       console.log('Audio manifest loaded:',Object.keys(audioManifest).length,'entries');
     }
   }catch(e){
@@ -682,9 +761,10 @@ async function loadManifest(){
 
 function stopAll(){
   if(currentAudio){
-    currentAudio.pause();
-    currentAudio.src='';
-    currentAudio=null;
+    const a=currentAudio;
+    currentAudio=null;   // 先に手放す — src=''はerrorイベントを発火させるため、
+    a.pause();           // 以降このaudioのイベントでフォールバック再生させない
+    a.src='';
   }
   if('speechSynthesis' in window) speechSynthesis.cancel();
 }
@@ -706,12 +786,15 @@ function speak(text, rate, onEnd){
         if(onEnd) onEnd();
       });
       audio.addEventListener('error', () => {
-        if(currentAudio === audio) currentAudio = null;
+        // stopAll()で中断された古いaudioのerror — 放置しないと前の文がTTSで二重再生される
+        if(currentAudio !== audio) return;
+        currentAudio = null;
         // MP3失敗時はWeb Speech APIへフォールバック
         speakFallback(text, rate, onEnd);
       });
       audio.play().catch(() => {
-        // 自動再生ブロック等の場合
+        // pause()による中断のrejectは無視。自動再生ブロック等(現役のaudio)のみフォールバック
+        if(currentAudio !== audio) return;
         speakFallback(text, rate, onEnd);
       });
       return;
@@ -753,6 +836,74 @@ function showVoiceNotice(el){
   },800);
 }
 
+// AUDIO BULK DOWNLOAD — コース単位で音声を先読みし、オフライン再生を可能にする。
+// ページからのfetchはSWのcache-firstを通るため、取得と同時にAUDIO_CACHEへ保存される。
+let audioDlToken=0;
+function collectCourseAudioUrls(courseKey){
+  if(!audioManifest||!COURSES[courseKey]) return [];
+  const urls=new Set();
+  COURSES[courseKey].units.forEach(u=>{
+    u.sentences.forEach(s=>{
+      if(audioManifest[s.th]) urls.add(AUDIO_BASE+audioManifest[s.th]);
+      (s.words||[]).forEach(w=>{ if(audioManifest[w.th]) urls.add(AUDIO_BASE+audioManifest[w.th]); });
+    });
+  });
+  return [...urls];
+}
+function setAudioDlMsg(text,isError){
+  const el=$('audio-dl-msg');
+  el.textContent=text||'';
+  el.classList.toggle('error',!!isError);
+}
+function resetAudioDlUi(courseKey){
+  audioDlToken++;   // 進行中の保存があってもUI更新を無効化(fetch自体は継続して無駄にならない)
+  const n=collectCourseAudioUrls(courseKey).length;
+  $('course-audio-btn').disabled=false;
+  $('audio-dl-label').textContent = n
+    ? `音声をオフライン保存(${n}件・約${Math.max(1,Math.round(n*0.0097))}MB)`
+    : '音声をオフライン保存';
+  setAudioDlMsg('');
+}
+async function downloadCourseAudio(courseKey){
+  const token=++audioDlToken;
+  const live=()=>token===audioDlToken;   // 別コースを開いたら以降このrunはUIに触らない
+  const btn=$('course-audio-btn');
+  await loadManifest();
+  if(!audioManifest){ if(live()) setAudioDlMsg('音声リストを取得できませんでした。通信環境をご確認ください。',true); return; }
+  const urls=collectCourseAudioUrls(courseKey);
+  if(urls.length===0){ if(live()) setAudioDlMsg('このコースに保存できる音声はありません(端末の音声合成を使用します)。',true); return; }
+  btn.disabled=true;
+  const total=urls.length;
+  let done=0,failed=0;
+  const queue=urls.slice();
+  const setLabel=t=>{ if(live()) $('audio-dl-label').textContent=t; };
+  setLabel(`保存中… 0 / ${total}`);
+  const worker=async()=>{
+    while(queue.length){
+      const url=queue.shift();
+      try{
+        const hit=('caches' in window)?await caches.match(url):null;   // 保存済みはスキップ
+        if(!hit){
+          const res=await fetch(url);
+          if(!res.ok) failed++;
+        }
+      }catch{ failed++; }
+      done++;
+      if(done%20===0||done===total) setLabel(`保存中… ${done} / ${total}`);
+    }
+  };
+  await Promise.all(Array.from({length:6},worker));
+  if(!live()) return;
+  btn.disabled=false;
+  if(failed===0){
+    setLabel('音声を保存済み(タップで再確認)');
+    setAudioDlMsg(`${total} 件の音声を保存しました。オフラインでも再生できます。`);
+  }else{
+    setLabel('音声をオフライン保存(再試行)');
+    setAudioDlMsg(`${total-failed} / ${total} 件を保存しました。残りは通信環境の良い場所で再試行してください。`,true);
+  }
+}
+
 // UTIL
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function shuffle(a){const x=a.slice();for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;}
@@ -778,6 +929,7 @@ function renderHome(){
   $('stat-learned').textContent=g.learned;
   $('stat-due').textContent=due;
   $('stat-percent').textContent=g.percent+'%';
+  $('stat-streak').textContent=getStreak();
   const cta=$('home-review-cta');
   if(due>0){
     cta.innerHTML=
@@ -816,6 +968,7 @@ function openCourse(key){
   $('banner-thai').textContent=c.thaiTitle;
   const s=getCourseStats(key);
   $('units-meta').textContent=s.learned+' / '+s.total;
+  resetAudioDlUi(key);
   const list=$('unit-list');list.innerHTML='';
   c.units.forEach((u,i)=>{
     const us=getUnitStats(key,u.id);const p=us.total?Math.round(us.learned/us.total*100):0;
@@ -867,7 +1020,7 @@ function showMode(m){
   window.scrollTo(0,0);
   if(m==='list'){state.reviewQueue=null;renderList();}
   else if(isCardLike){
-    state.cardIdx=0;state.cardFlipped=false;
+    state.cardIdx=0;state.cardFlipped=false;state.completed=false;
     if(m==='review'){
       const u=currentUnit();
       state.reviewQueue=[];
@@ -907,7 +1060,7 @@ function startGlobalReview(){
   const q=getAllDueItems();
   if(q.length===0) return;
   state.course=null;state.unit=null;state.quiz=null;state.reviewQueue=null;
-  state.globalQueue=q;state.mode='review';state.cardIdx=0;state.cardFlipped=false;
+  state.globalQueue=q;state.mode='review';state.cardIdx=0;state.cardFlipped=false;state.completed=false;
   $('study-title').textContent='今日の復習';
   $('study-thai-title').textContent='ทบทวนวันนี้';
   document.querySelector('.mode-tabs').style.display='none';
@@ -1049,13 +1202,21 @@ function renderCardControls(item){
     $$('.fc-grade-btn',ctrls).forEach(btn=>{
       btn.addEventListener('click',(e)=>{
         e.stopPropagation();
-        gradeSrs(c,u,i,+btn.dataset.q);
+        const q=+btn.dataset.q;
+        gradeSrs(c,u,i,q);
+        if(q===1) requeueCurrent(item);   // 「もう一度」はセッション末尾に再出題
         advanceCard();
       });
     });
   }
 }
-function flipCard(){state.cardFlipped=!state.cardFlipped;renderCard();}
+function flipCard(){if(state.completed)return;state.cardFlipped=!state.cardFlipped;renderCard();}
+// 「もう一度」のカードを復習キュー末尾へ戻す(全て正解になるまでセッションが終わらない)。
+// 通常カードモードはデッキを都度導出するため対象外 — 復習モードのみ。
+function requeueCurrent(item){
+  if(state.globalQueue) state.globalQueue.push(item);
+  else if(state.reviewQueue) state.reviewQueue.push(item.i);
+}
 function advanceCard(){
   const deck=getCardDeck();
   if(state.cardIdx<deck.length-1){state.cardIdx++;state.cardFlipped=false;renderCard();}
@@ -1064,6 +1225,7 @@ function advanceCard(){
 function prevCard(){if(state.cardIdx>0){state.cardIdx--;state.cardFlipped=false;renderCard();}}
 
 function showCompletionScreen({title, thai, desc}){
+  state.completed=true;   // 完了画面表示中はタップ/Enterでのめくり直しを無効化
   $('flashcard').style.cursor='default';
   $('flashcard').innerHTML=
     `<div class="completion-screen"><div class="symbol">๏</div>`+
@@ -1112,7 +1274,10 @@ function renderQuizQ(){
   if(q.current>=q.questions.length){renderQuizResult();return;}
   $('study-counter').textContent=(q.current+1)+' / '+q.questions.length;
   const cur=q.questions[q.current];const sent=cur.s;
-  q.direction=Math.random()<0.5?'th2jp':'jp2th';
+  // リスニング問題は音が出せる場合のみ出題(HD音声または端末TTS)
+  const canListen=!!(audioManifest&&audioManifest[sent.th])||('speechSynthesis' in window);
+  const dirs=canListen?['th2jp','jp2th','listen']:['th2jp','jp2th'];
+  q.direction=dirs[Math.floor(Math.random()*dirs.length)];
   const distract=shuffle(q.pool.filter(x=>x.idx!==cur.idx)).slice(0,3);
   const opts=shuffle([cur,...distract]);
 
@@ -1127,16 +1292,25 @@ function renderQuizQ(){
   pips+='</div>';
 
   // Question card
-  const qh = q.direction==='th2jp'
-    ? `<div class="quiz-question"><div class="quiz-prompt">タイ語 → 日本語</div><div class="quiz-thai" id="quiz-thai">${escapeHtml(sent.th)}</div><div class="quiz-ph-small">${escapeHtml(sent.ph)}</div></div>`
-    : `<div class="quiz-question"><div class="quiz-prompt">日本語 → タイ語</div><div class="quiz-jp">${escapeHtml(sent.jp)}</div></div>`;
+  let qh;
+  if(q.direction==='th2jp'){
+    qh=`<div class="quiz-question"><div class="quiz-prompt">タイ語 → 日本語</div><div class="quiz-thai" id="quiz-thai">${escapeHtml(sent.th)}</div><div class="quiz-ph-small">${escapeHtml(sent.ph)}</div></div>`;
+  }else if(q.direction==='jp2th'){
+    qh=`<div class="quiz-question"><div class="quiz-prompt">日本語 → タイ語</div><div class="quiz-jp">${escapeHtml(sent.jp)}</div></div>`;
+  }else{
+    // listen: タイ語表記は隠して音声だけで出題。答え合わせ時に開示する
+    qh=`<div class="quiz-question"><div class="quiz-prompt">音声 → 日本語</div>`+
+       `<button class="quiz-listen-btn" id="quiz-listen" aria-label="音声を再生">${ICONS.speakerLg}</button>`+
+       `<div class="quiz-thai quiz-reveal-hidden" id="quiz-thai">${escapeHtml(sent.th)}</div>`+
+       `<div class="quiz-ph-small quiz-reveal-hidden" id="quiz-ph-reveal">${escapeHtml(sent.ph)}</div></div>`;
+  }
 
   // Options
   const optsHtml = opts.map(o=>{
     const correct = o.idx===cur.idx ? '1' : '0';
-    return q.direction==='th2jp'
-      ? `<button class="quiz-option" data-correct="${correct}"><div class="opt-jp">${escapeHtml(o.s.jp)}</div></button>`
-      : `<button class="quiz-option" data-correct="${correct}"><div class="opt-thai">${escapeHtml(o.s.th)}</div><div class="opt-ph">${escapeHtml(o.s.ph)}</div></button>`;
+    return q.direction==='jp2th'
+      ? `<button class="quiz-option" data-correct="${correct}"><div class="opt-thai">${escapeHtml(o.s.th)}</div><div class="opt-ph">${escapeHtml(o.s.ph)}</div></button>`
+      : `<button class="quiz-option" data-correct="${correct}"><div class="opt-jp">${escapeHtml(o.s.jp)}</div></button>`;
   }).join('');
   const oh = `<div class="quiz-options">${optsHtml}</div><button class="quiz-next-btn" id="quiz-next-btn">次の問題へ</button>`;
 
@@ -1146,6 +1320,10 @@ function renderQuizQ(){
     const t=$('quiz-thai');
     t.addEventListener('click',()=>playWithHighlight(t, sent.th, 0.75));
     setTimeout(()=>playWithHighlight(t, sent.th, 0.8), 200);
+  }else if(q.direction==='listen'){
+    const b=$('quiz-listen');
+    b.addEventListener('click',()=>playWithHighlight(b, sent.th, 0.8));
+    setTimeout(()=>playWithHighlight(b, sent.th, 0.8), 200);
   }
   q.answered=false;
   $$('.quiz-option').forEach(opt=>{
@@ -1155,6 +1333,14 @@ function renderQuizQ(){
       $$('.quiz-option').forEach(o=>{o.classList.add('disabled'); if(o.dataset.correct==='1') o.classList.add('correct');});
       if(!correct) opt.classList.add('wrong');
       if(q.direction==='jp2th') speak(sent.th, 0.75);
+      if(q.direction==='listen'){
+        // 答え合わせ時にタイ語表記を開示し、もう一度聞かせて音と文字を結び付ける
+        $('quiz-thai').classList.remove('quiz-reveal-hidden');
+        $('quiz-ph-reveal').classList.remove('quiz-reveal-hidden');
+        const t=$('quiz-thai');
+        t.addEventListener('click',()=>playWithHighlight(t, sent.th, 0.75));
+        speak(sent.th, 0.75);
+      }
       if(correct){ q.correct++; q.answers.push('correct'); gradeSrs(state.course,state.unit,cur.idx,4); }
       else      { q.answers.push('wrong');   gradeSrs(state.course,state.unit,cur.idx,1); }
       $('quiz-next-btn').classList.add('show');
@@ -1211,7 +1397,13 @@ $('flashcard').addEventListener('click',(e)=>{
   }
   flipCard();
 });
+$('flashcard').addEventListener('keydown',(e)=>{
+  if(e.key!=='Enter'&&e.key!==' ') return;
+  e.preventDefault();
+  flipCard();
+});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAll();});
+$('course-audio-btn').addEventListener('click',()=>{ if(state.course) downloadCourseAudio(state.course); });
 $('export-btn').addEventListener('click',exportProgress);
 $('import-btn').addEventListener('click',()=>$('import-file').click());
 $('import-file').addEventListener('change',(e)=>{
