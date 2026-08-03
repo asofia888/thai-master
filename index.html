@@ -344,9 +344,12 @@
   .quiz-result-actions button:active{transform:scale(.97);}
 
   /* NOTICES */
+  /* 文法noteは日タイ混在。Noto Sans JPにタイ文字がないため、
+     フォールバック先を明示してタイ文字だけ端末既定書体に落ちるのを防ぐ。 */
   .notice{
     margin:12px 16px;padding:12px 14px;background:var(--bg-sub);
     border-left:2px solid var(--gold);font-size:12.5px;color:var(--ink-soft);
+    font-family:'Noto Sans JP','Noto Sans Thai',sans-serif;
     letter-spacing:.05em;line-height:1.6;border-radius:0 4px 4px 0;
   }
 
