@@ -54,16 +54,38 @@ def token():
     return subprocess.run(['gcloud', 'auth', 'application-default', 'print-access-token'],
                           capture_output=True, text=True, check=True).stdout.strip()
 
-def synth(text, voice, rate, tok):
+# ADC の quota_project_id はクライアントライブラリが読む値。生のRESTで叩く場合は
+# x-goog-user-project を自分で送らないと 403 SERVICE_DISABLED になる。
+ADC = os.path.expanduser('~/.config/gcloud/application_default_credentials.json')
+
+def quota_project():
+    if os.path.exists(ADC):
+        return json.load(open(ADC)).get('quota_project_id')
+    return None
+
+def synth(text, voice, rate, tok, tries=4):
     body = json.dumps({
         'input':       {'text': text},          # Chirp 3: HD は SSML 非対応 — plain text のみ
         'voice':       {'languageCode': 'th-TH', 'name': voice},
         'audioConfig': {'audioEncoding': 'MP3', 'speakingRate': rate},
     }).encode('utf-8')
-    req = urllib.request.Request(ENDPOINT, data=body, headers={
-        'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json; charset=utf-8'})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return base64.b64decode(json.loads(r.read())['audioContent'])
+    head = {'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json; charset=utf-8'}
+    qp = quota_project()
+    if qp:
+        head['x-goog-user-project'] = qp
+    # 数百件を連続で回すと DNS 断や 503 を踏む。一過性のものだけ指数バックオフで粘る。
+    for n in range(tries):
+        req = urllib.request.Request(ENDPOINT, data=body, headers=head)
+        try:
+            with urllib.request.urlopen(req, timeout=60) as r:
+                return base64.b64decode(json.loads(r.read())['audioContent'])
+        except urllib.error.HTTPError as e:
+            if e.code not in (429, 500, 502, 503, 504) or n == tries - 1:
+                raise
+        except urllib.error.URLError:
+            if n == tries - 1:
+                raise
+        time.sleep(2 ** n)
 
 def main():
     p = argparse.ArgumentParser()
