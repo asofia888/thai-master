@@ -7,7 +7,7 @@
 //   - Other static (icon.svg, manifest.json): cache-first
 // Bump VERSION whenever shell assets change so old caches get evicted.
 
-const VERSION = 'v7';
+const VERSION = 'v8';
 const SHELL_CACHE = 'thai-shell-' + VERSION;
 // data/font/audio は VERSION に連動させない:
 //  - audio: ファイル名がハッシュ化&immutableなので更新の概念がなく、

@@ -261,7 +261,7 @@
     cursor:pointer;position:relative;min-height:380px;
   }
   .fc-num{position:absolute;top:18px;left:22px;font-family:'Shippori Mincho',serif;font-size:12.5px;color:var(--gold);letter-spacing:.2em;}
-  .fc-side{position:absolute;top:18px;right:22px;font-size:11px;color:var(--ink-faint);letter-spacing:.25em;text-transform:uppercase;}
+  .fc-side{position:absolute;top:18px;right:22px;font-size:12px;color:var(--ink-faint);letter-spacing:.25em;text-transform:uppercase;}
 
   .fc-thai{
     font-family:'Noto Sans Thai',sans-serif;font-weight:600;font-size:26px;line-height:1.5;color:var(--ink);
@@ -272,6 +272,16 @@
   .fc-jp{font-family:'Shippori Mincho',serif;font-size:19px;font-weight:600;color:var(--accent);letter-spacing:.06em;line-height:1.5;transition:opacity .3s,filter .3s;}
   .fc-hint{margin-top:24px;font-size:12px;color:var(--ink-muted);letter-spacing:.25em;text-transform:uppercase;}
   .fc-hidden{opacity:.15;filter:blur(6px);user-select:none;}
+  /* 日→タイ方向: 日本語を上に出す */
+  .flashcard.rev .fc-jp{order:-1;margin-bottom:20px;}
+
+  /* 学習設定(発音表記・カードの向き) */
+  .study-prefs{display:flex;gap:8px;padding:10px 20px 0;}
+  .pref-btn{
+    padding:6px 10px;font-size:12.5px;letter-spacing:.05em;color:var(--ink-soft);
+    background:var(--bg-sub);border:1px solid var(--line);border-radius:14px;cursor:pointer;
+  }
+  .pref-btn.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);}
 
   .fc-controls{display:flex;gap:12px;margin-top:20px;}
   .fc-btn{
@@ -384,6 +394,8 @@
     .quiz-thai{font-size:19px;}
     .stats-bar{padding:14px 10px;}
     .stat-num{font-size:19px;}
+    .mode-tab{padding:6px 8px;letter-spacing:.05em;}
+    .study-controls{padding:12px 14px;}
   }
 
   /* SRS — grade buttons */
@@ -395,7 +407,7 @@
   }
   .fc-grade-btn:active{transform:scale(.97);}
   .fc-grade-btn .label{font-size:14px;font-weight:500;letter-spacing:.1em;}
-  .fc-grade-btn .interval{font-size:11px;color:var(--ink-muted);letter-spacing:.05em;font-variant-numeric:tabular-nums;}
+  .fc-grade-btn .interval{font-size:12px;color:var(--ink-muted);letter-spacing:.05em;font-variant-numeric:tabular-nums;}
   .fc-grade-btn.again{color:var(--accent);border-color:var(--accent);}
   .fc-grade-btn.again .interval{color:var(--accent);opacity:.7;}
   .fc-grade-btn.good{background:var(--ink);color:var(--bg-card);border-color:var(--ink);}
@@ -405,7 +417,7 @@
 
   /* SRS — due badge on unit cards */
   .due-badge{
-    display:inline-block;font-size:11px;color:#fff;background:var(--accent-fill);
+    display:inline-block;font-size:12px;color:#fff;background:var(--accent-fill);
     padding:2px 6px;border-radius:8px;margin-top:5px;font-variant-numeric:tabular-nums;
     letter-spacing:.05em;font-weight:500;
   }
@@ -420,6 +432,16 @@
   .review-cta:active{transform:scale(.98);}
   .review-cta .label{font-family:'Shippori Mincho',serif;font-size:15px;font-weight:600;letter-spacing:.12em;display:flex;align-items:center;gap:10px;}
   .review-cta .label svg{width:16px;height:16px;}
+  .continue-cta{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    width:calc(100% - 32px);margin:-8px 16px 24px;padding:14px 20px;text-align:left;
+    background:var(--bg-card);color:var(--ink);border:1px solid var(--line);border-radius:6px;cursor:pointer;
+    box-shadow:var(--shadow-sm);transition:transform .15s;
+  }
+  .continue-cta:active{transform:scale(.98);}
+  .continue-cta .label{font-size:12.5px;color:var(--ink-muted);letter-spacing:.1em;}
+  .continue-cta .unit{font-family:'Shippori Mincho',serif;font-size:15px;font-weight:600;letter-spacing:.06em;margin-top:2px;}
+  .continue-cta svg{width:16px;height:16px;flex-shrink:0;color:var(--accent);}
   .review-cta .count{font-family:'Shippori Mincho',serif;font-size:13px;letter-spacing:.1em;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:10px;font-variant-numeric:tabular-nums;}
 
   /* Data export / import */
@@ -462,6 +484,7 @@
       <div class="stat-item"><div class="stat-num" id="stat-streak">0</div><div class="stat-label">連続日数</div></div>
     </div>
     <div id="home-review-cta"></div>
+    <div id="home-continue-cta"></div>
     <div class="section-title">コース・หลักสูตร</div>
     <div class="courses" id="course-list"></div>
     <div class="section-title">データ・ข้อมูล</div>
@@ -524,10 +547,15 @@
       <div class="mode-tabs">
         <button class="mode-tab active" data-mode="list">一覧</button>
         <button class="mode-tab" data-mode="card">カード</button>
+        <button class="mode-tab" data-mode="words" id="tab-words">単語</button>
         <button class="mode-tab" data-mode="review">復習</button>
         <button class="mode-tab" data-mode="quiz">クイズ</button>
       </div>
       <div class="study-counter" id="study-counter">— / —</div>
+    </div>
+    <div class="study-prefs" id="study-prefs" style="display:none">
+      <button class="pref-btn" id="pref-ph" aria-pressed="false">発音表記を隠す</button>
+      <button class="pref-btn" id="pref-dir" aria-pressed="false">日本語→タイ語</button>
     </div>
     <div id="notice-area"></div>
     <div class="sentence-list" id="sentence-list" style="display:block"></div>
@@ -550,7 +578,9 @@
 <script>
 'use strict';
 let COURSES = {};
-const COURSES_URL = './courses.json';
+// ?v= はデータ形式を変えたときだけ上げる。SWのキャッシュキーが変わり、
+// 新しいindex.htmlが古い形式のcourses.jsonを掴むことを防ぐ。
+const COURSES_URL = './courses.json?v=4';
 const state = {course:null, unit:null, mode:'list', cardIdx:0, cardFlipped:false, completed:false, quiz:null, reviewQueue:null, globalQueue:null};
 
 // DOM shorthand
@@ -572,7 +602,13 @@ async function loadCourses(){
   // 速度はSWのstale-while-revalidateが担保する。
   const res = await fetch(COURSES_URL);
   if(!res.ok) throw new Error('courses.json: '+res.status);
-  COURSES = await res.json();
+  const data = await res.json();
+  // 固定IDのない旧データで移行すると進捗を失うので、読み込み自体を失敗させる
+  for(const c of Object.values(data)) for(const u of c.units) for(const x of u.sentences)
+    if(!x.id) throw new Error('courses.json: sentence id missing in '+u.id);
+  COURSES = data;
+  buildUnitIndex();
+  migrateProgress();
 }
 
 // STORAGE
@@ -589,7 +625,41 @@ function loadProgress(){
 }
 function saveProgress(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(progress));}catch{}}
 const progress = loadProgress();
-function sentKey(c,u,i){return c+'/'+u+'/'+i;}
+// 進捗キーは courses.json の文ごとの固定ID(例 "b34-03")。配列位置をキーにすると
+// 文の追加・削除・並べ替えで記録が別の文にずれるため。新しい文には未使用のIDを振ること。
+let UNIT_INDEX = {};   // "course/unitId" -> unit
+function buildUnitIndex(){
+  UNIT_INDEX={};
+  Object.keys(COURSES).forEach(c=>COURSES[c].units.forEach(u=>{UNIT_INDEX[c+'/'+u.id]=u;}));
+}
+function sentKey(c,u,i){return UNIT_INDEX[c+'/'+u].sentences[i].id;}
+// 旧形式キー "course/unit/index" を固定IDへ変換する。変換先がなければ null。
+const LEGACY_KEY_RE=/^([^/]+)\/([^/]+)\/(\d+)$/;
+function legacyKeyToId(k){
+  const m=LEGACY_KEY_RE.exec(k);
+  if(!m) return k;
+  const u=UNIT_INDEX[m[1]+'/'+m[2]];
+  const s=u&&u.sentences[+m[3]];
+  return s?s.id:null;
+}
+// learned/srs のキーを固定IDに揃えた新しいオブジェクトを返す(元は変更しない)。
+function normalizeKeys(p){
+  const learned={},srs={};
+  Object.keys(p.learned||{}).forEach(k=>{const id=legacyKeyToId(k);if(id) learned[id]=1;});
+  Object.keys(p.srs||{}).forEach(k=>{
+    const id=legacyKeyToId(k);const s=p.srs[k];
+    if(!id||!s||typeof s!=='object') return;
+    if(!srs[id]||(+s.l||0)>=(+srs[id].l||0)) srs[id]=s;
+  });
+  return {learned,srs,days:p.days||{}};
+}
+function migrateProgress(){
+  const all=[...Object.keys(progress.learned),...Object.keys(progress.srs)];
+  if(!all.some(k=>LEGACY_KEY_RE.test(k))) return;
+  const n=normalizeKeys(progress);
+  progress.learned=n.learned;progress.srs=n.srs;
+  saveProgress();
+}
 
 // EXPORT / IMPORT
 function showDataMsg(text,isError){
@@ -601,7 +671,7 @@ function showDataMsg(text,isError){
 }
 function exportProgress(){
   const data={
-    app:'thai-master',version:3,
+    app:'thai-master',version:4,
     exportedAt:new Date().toISOString(),
     progress:{learned:progress.learned,srs:progress.srs,days:progress.days||{}}
   };
@@ -617,7 +687,8 @@ function exportProgress(){
 // Newer-wins merge: an SRS entry from the file replaces the local one only if
 // its lastReviewed timestamp is the same or later, so importing an old backup
 // never rolls back fresher local study history.
-function mergeProgress(p){
+function mergeProgress(raw){
+  const p=normalizeKeys(raw);   // 旧バージョンのバックアップ(位置キー)も受け入れる
   let nl=0,ns=0;
   Object.keys(p.learned||{}).forEach(k=>{
     if(!progress.learned[k]) nl++;
@@ -641,6 +712,7 @@ function mergeProgress(p){
   return {learned:nl,srs:ns};
 }
 function importProgressFile(file){
+  if(!Object.keys(COURSES).length){showDataMsg('コースデータの読み込み後にもう一度お試しください。',true);return;}
   const reader=new FileReader();
   reader.onload=()=>{
     try{
@@ -681,6 +753,9 @@ function getGlobalStats(){let t=0,l=0;Object.keys(COURSES).forEach(k=>{const s=g
 // SRS — SM-2 (lite). State per sentence: e(ase), i(nterval days), r(eps), d(ue ms), l(astReviewed ms).
 // Quality grades used by UI: 1=Again, 4=Good, 5=Easy.
 const DAY_MS=86400000;
+// 復習日前のカードに「正解/簡単」を付けても間隔は伸ばさない(据え置き)。
+// 一覧やクイズで同じ日に何度も触れるだけで間隔が 1→6→15日 と進むのを防ぐ。
+function isEarlyPass(s,q,now){return q>=3 && !!s && s.r>=1 && s.d>now;}
 // 次回間隔(日)の計算。gradeSrsとpreviewIntervalで共用し、表示と実際のズレを防ぐ。
 function nextIntervalDays(s,q){
   let i;
@@ -690,9 +765,11 @@ function nextIntervalDays(s,q){
   if(q===5) i=Math.max(i+1,Math.round(i*1.3));   // easy bonus
   return i;
 }
-function gradeSrs(c,u,i,q){
-  const k=sentKey(c,u,i);
+function gradeSrs(c,u,i,q){gradeKey(sentKey(c,u,i),q);}
+// k は文ID("b34-03")または単語キー("w:"+タイ語)。単語は複数ユニットに出てきても記録は1つ。
+function gradeKey(k,q){
   const now=Date.now();
+  if(isEarlyPass(progress.srs[k],q,now)){ bumpDailyActivity(now); saveProgress(); return; }
   const s=progress.srs[k]||{e:2.5,i:0,r:0,d:0,l:0};
   if(q<3){
     s.r=0;s.i=0;
@@ -709,10 +786,13 @@ function gradeSrs(c,u,i,q){
   bumpDailyActivity(now);
   saveProgress();
 }
-function isDue(c,u,i){const s=progress.srs[sentKey(c,u,i)];return !!s && s.d<=Date.now();}
-function previewInterval(c,u,i,q){
+function isDueKey(k){const s=progress.srs[k];return !!s && s.d<=Date.now();}
+function isDue(c,u,i){return isDueKey(sentKey(c,u,i));}
+function previewInterval(k,q){
   if(q<3) return '10分';
-  const s=progress.srs[sentKey(c,u,i)]||{e:2.5,i:0,r:0,d:0,l:0};
+  const cur=progress.srs[k];
+  if(isEarlyPass(cur,q,Date.now())) return '据え置き';
+  const s=cur||{e:2.5,i:0,r:0,d:0,l:0};
   return nextIntervalDays(s,q)+'日';
 }
 
@@ -729,12 +809,25 @@ function getStreak(){
   while(progress.days[dayKey(t)]){n++;t-=DAY_MS;}
   return n;
 }
-function getUnitDueCount(c,uid){
-  const u=COURSES[c].units.find(x=>x.id===uid);if(!u)return 0;
-  let n=0;for(let i=0;i<u.sentences.length;i++) if(isDue(c,uid,i)) n++;return n;
+// カードデッキの要素: {s:{th,ph,jp}, key, c, u, i?, word?}
+const wordKey=(w)=>'w:'+w.th;
+function sentItems(c,uid){
+  return UNIT_INDEX[c+'/'+uid].sentences.map((s,i)=>({s, key:s.id, c, u:uid, i}));
 }
-function getCourseDueCount(c){let n=0;COURSES[c].units.forEach(u=>{u.sentences.forEach((_,i)=>{if(isDue(c,u.id,i))n++;});});return n;}
-function getGlobalDueCount(){return Object.keys(COURSES).reduce((a,k)=>a+getCourseDueCount(k),0);}
+// ユニット内の語彙(重複除去・出現順)
+function wordItems(c,uid){
+  const seen=new Set(),out=[];
+  UNIT_INDEX[c+'/'+uid].sentences.forEach(s=>(s.words||[]).forEach(w=>{
+    const key=wordKey(w);
+    if(!seen.has(key)){seen.add(key);out.push({s:w, key, c, u:uid, word:true});}
+  }));
+  return out;
+}
+function getUnitDueItems(c,uid){
+  return [...sentItems(c,uid),...wordItems(c,uid)].filter(x=>isDueKey(x.key));
+}
+function getUnitDueCount(c,uid){return UNIT_INDEX[c+'/'+uid]?getUnitDueItems(c,uid).length:0;}
+function getGlobalDueCount(){return getAllDueItems().length;}
 
 // TTS - Chirp 3: HD MP3再生 + Web Speech APIフォールバック
 let thaiVoice = null;
@@ -911,9 +1004,24 @@ async function downloadCourseAudio(courseKey){
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function shuffle(a){const x=a.slice();for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;}
 
+// PREFS — 端末ごとの表示設定(失っても困らないので localStorage)
+const PREFS_KEY='thai_master_prefs';
+const prefs=(()=>{try{return Object.assign({hidePh:false,rev:false,last:null},JSON.parse(localStorage.getItem(PREFS_KEY)||'{}'));}catch{return {hidePh:false,rev:false,last:null};}})();
+function savePrefs(){try{localStorage.setItem(PREFS_KEY,JSON.stringify(prefs));}catch{}}
+function renderPrefs(){
+  const m=state.mode;
+  $('study-prefs').style.display = m==='list' ? 'none' : 'flex';
+  $('pref-dir').style.display = m==='quiz' ? 'none' : '';
+  $('pref-ph').classList.toggle('on',prefs.hidePh);
+  $('pref-ph').setAttribute('aria-pressed',prefs.hidePh);
+  $('pref-dir').classList.toggle('on',prefs.rev);
+  $('pref-dir').setAttribute('aria-pressed',prefs.rev);
+}
+
 // Navigation context
 const currentUnit = () => COURSES[state.course].units.find(u => u.id === state.unit);
-const currentItem = () => getCardDeck()[state.cardIdx];   // {s, c, u, i}
+const currentItem = () => getCardDeck()[state.cardIdx];   // {s, key, c, u, i?, word?}
+const isCardMode = () => state.mode==='card'||state.mode==='review'||state.mode==='words';
 
 // Audio + visual highlight helpers
 function clearPlaying(root){ $$('.playing', root).forEach(x => x.classList.remove('playing')); }
@@ -944,6 +1052,7 @@ function renderHome(){
   }else{
     cta.innerHTML='';
   }
+  renderContinue();
   const w=$('course-list');w.innerHTML='';
   const keys=Object.keys(COURSES);
   const totalLabel=String(keys.length).padStart(2,'0');
@@ -988,20 +1097,43 @@ function openCourse(key){
   showScreen('units');
 }
 
+// 「続きから」: 最後に開いたユニットが未完了ならそこ、完了済みなら次の未完了ユニット
+function getContinueTarget(){
+  const order=[];
+  Object.keys(COURSES).forEach(c=>COURSES[c].units.forEach(u=>order.push({c,u})));
+  if(!order.length) return null;
+  const incomplete=(x)=>{const st=getUnitStats(x.c,x.u.id);return st.learned<st.total;};
+  let start=0;
+  if(prefs.last){
+    const i=order.findIndex(x=>x.c===prefs.last.c&&x.u.id===prefs.last.u);
+    if(i>=0) start=i;
+  }
+  for(let k=0;k<order.length;k++){const x=order[(start+k)%order.length];if(incomplete(x)) return x;}
+  return null;
+}
+function renderContinue(){
+  const box=$('home-continue-cta');
+  const t=getContinueTarget();
+  if(!t){box.innerHTML='';return;}
+  box.innerHTML=
+    `<button class="continue-cta" id="continue-btn">`+
+      `<span><div class="label">続きから学ぶ・${escapeHtml(COURSES[t.c].title)}</div><div class="unit">${escapeHtml(t.u.title)}</div></span>`+
+      ICONS.forward+
+    `</button>`;
+  $('continue-btn').addEventListener('click',()=>{openCourse(t.c);openUnit(t.u.id);});
+}
+
 function openUnit(uid){
   endGlobalReview();
+  prefs.last={c:state.course,u:uid};savePrefs();
   state.unit=uid;state.mode='list';state.cardIdx=0;state.cardFlipped=false;state.quiz=null;state.reviewQueue=null;
   const u=currentUnit();
   $('study-title').textContent=u.title;
   $('study-thai-title').textContent=u.thaiTitle;
   $$('.mode-tab').forEach(t=>t.classList.remove('active'));
   document.querySelector('.mode-tab[data-mode="list"]').classList.add('active');
-  if(state.course==='script' && state.unit!=='s09'){
-    // Letter names are not in the HD audio manifest — they play via the device's Thai TTS voice.
-    $('notice-area').innerHTML='<div class="notice">文字の読み上げは端末のタイ語音声(音声合成)を使用します。端末にタイ語音声がない場合は音が出ないことがあります。</div>';
-  }else{
-    showVoiceNotice($('notice-area'));
-  }
+  $('tab-words').style.display = wordItems(state.course,uid).length ? '' : 'none';
+  showVoiceNotice($('notice-area'));
   showMode('list');
   showScreen('study');
 }
@@ -1016,7 +1148,8 @@ const FLASHCARD_TEMPLATE =
 
 function showMode(m){
   state.mode=m;
-  const isCardLike=(m==='card'||m==='review');
+  renderPrefs();
+  const isCardLike=(m==='card'||m==='review'||m==='words');
   $('sentence-list').style.display = m==='list' ? 'block' : 'none';
   $('card-area').style.display     = isCardLike ? 'flex'  : 'none';
   $('quiz-area').style.display     = m==='quiz' ? 'block' : 'none';
@@ -1025,9 +1158,7 @@ function showMode(m){
   else if(isCardLike){
     state.cardIdx=0;state.cardFlipped=false;state.completed=false;
     if(m==='review'){
-      const u=currentUnit();
-      state.reviewQueue=[];
-      u.sentences.forEach((s,i)=>{ if(isDue(state.course,state.unit,i)) state.reviewQueue.push(i); });
+      state.reviewQueue=getUnitDueItems(state.course,state.unit);
     } else {
       state.reviewQueue=null;
     }
@@ -1041,18 +1172,22 @@ function showMode(m){
 
 function getCardDeck(){
   if(state.globalQueue) return state.globalQueue;
-  const u=currentUnit();
-  if(state.reviewQueue) return state.reviewQueue.map(i=>({s:u.sentences[i], c:state.course, u:state.unit, i}));
-  return u.sentences.map((s,i)=>({s, c:state.course, u:state.unit, i}));
+  if(state.reviewQueue) return state.reviewQueue;
+  if(state.mode==='words') return wordItems(state.course,state.unit);
+  return sentItems(state.course,state.unit);
 }
 
 // GLOBAL REVIEW — all due cards across every course/unit, oldest due first
 function getAllDueItems(){
-  const items=[];
+  const items=[],seenWords=new Set();
   Object.keys(COURSES).forEach(c=>{
     COURSES[c].units.forEach(u=>{
-      u.sentences.forEach((s,i)=>{
-        if(isDue(c,u.id,i)) items.push({s, c, u:u.id, i, unitTitle:u.title, due:progress.srs[sentKey(c,u.id,i)].d});
+      const add=(x)=>{x.unitTitle=u.title;x.due=progress.srs[x.key].d;items.push(x);};
+      sentItems(c,u.id).forEach(x=>{ if(isDueKey(x.key)) add(x); });
+      wordItems(c,u.id).forEach(x=>{
+        if(seenWords.has(x.key)) return;
+        seenWords.add(x.key);
+        if(isDueKey(x.key)) add(x);
       });
     });
   });
@@ -1064,6 +1199,7 @@ function startGlobalReview(){
   if(q.length===0) return;
   state.course=null;state.unit=null;state.quiz=null;state.reviewQueue=null;
   state.globalQueue=q;state.mode='review';state.cardIdx=0;state.cardFlipped=false;state.completed=false;
+  renderPrefs();
   $('study-title').textContent='今日の復習';
   $('study-thai-title').textContent='ทบทวนวันนี้';
   document.querySelector('.mode-tabs').style.display='none';
@@ -1175,12 +1311,17 @@ function renderCard(){
   $('study-meta').textContent=state.globalQueue ? (item.unitTitle||'') : currentUnit().thaiTitle;
   $('fc-num').textContent='№ '+String(state.cardIdx+1).padStart(3,'0');
   $('fc-side').textContent=state.cardFlipped?'BACK':'FRONT';
+  const rev=prefs.rev, front=!state.cardFlipped;
+  $('flashcard').classList.toggle('rev',rev);
   $('fc-thai').textContent=s.th;
+  $('fc-thai').classList.toggle('fc-hidden',rev&&front);
   $('fc-ph').textContent=s.ph;
-  const j=$('fc-jp');j.textContent=s.jp;j.classList.toggle('fc-hidden',!state.cardFlipped);
-  $('fc-hint').textContent=state.cardFlipped?'評価して次のカードへ':'タップで意味を見る';
+  $('fc-ph').classList.toggle('fc-hidden',front&&(rev||prefs.hidePh));
+  const j=$('fc-jp');j.textContent=s.jp;j.classList.toggle('fc-hidden',!rev&&front);
+  $('fc-hint').textContent=!front?'評価して次のカードへ':rev?'タップでタイ語を見る':'タップで意味を見る';
   renderCardControls(item);
-  playWithHighlight($('fc-thai'), s.th, 0.8);
+  // タイ語が見えるようになった時点で一度だけ読み上げる(めくるたびに繰り返さない)
+  if(rev?!front:front) playWithHighlight($('fc-thai'), s.th, 0.8);
 }
 function renderCardControls(item){
   const ctrls=$('fc-controls');
@@ -1194,10 +1335,9 @@ function renderCardControls(item){
     $('fc-reveal').addEventListener('click',(e)=>{e.stopPropagation();flipCard();});
   }else{
     ctrls.className='fc-grade-controls';
-    const {c,u,i}=item;
-    const lA=previewInterval(c,u,i,1);
-    const lG=previewInterval(c,u,i,4);
-    const lE=previewInterval(c,u,i,5);
+    const lA=previewInterval(item.key,1);
+    const lG=previewInterval(item.key,4);
+    const lE=previewInterval(item.key,5);
     ctrls.innerHTML=
       `<button class="fc-grade-btn again" data-q="1"><span class="label">もう一度</span><span class="interval">${lA}</span></button>`+
       `<button class="fc-grade-btn good"  data-q="4"><span class="label">正解</span><span class="interval">${lG}</span></button>`+
@@ -1206,7 +1346,7 @@ function renderCardControls(item){
       btn.addEventListener('click',(e)=>{
         e.stopPropagation();
         const q=+btn.dataset.q;
-        gradeSrs(c,u,i,q);
+        gradeKey(item.key,q);
         if(q===1) requeueCurrent(item);   // 「もう一度」はセッション末尾に再出題
         advanceCard();
       });
@@ -1218,7 +1358,7 @@ function flipCard(){if(state.completed)return;state.cardFlipped=!state.cardFlipp
 // 通常カードモードはデッキを都度導出するため対象外 — 復習モードのみ。
 function requeueCurrent(item){
   if(state.globalQueue) state.globalQueue.push(item);
-  else if(state.reviewQueue) state.reviewQueue.push(item.i);
+  else if(state.reviewQueue) state.reviewQueue.push(item);
 }
 function advanceCard(){
   const deck=getCardDeck();
@@ -1243,6 +1383,14 @@ function cardComplete(){
       title: '今日の復習を完了しました',
       thai:  'ทบทวนเสร็จแล้ว',
       desc:  '本日の復習対象をすべて完了しました。<br>おつかれさまでした。'
+    });
+    return;
+  }
+  if(state.mode==='words'){
+    showCompletionScreen({
+      title: '単語を確認しました',
+      thai:  'เสร็จสิ้น',
+      desc:  'このユニットの単語をすべて確認しました。<br>評価した単語は「今日の復習」に出題されます。'
     });
     return;
   }
@@ -1294,10 +1442,11 @@ function renderQuizQ(){
   }
   pips+='</div>';
 
-  // Question card
+  // Question card — 「発音表記を隠す」ときは答え合わせまで伏せる
+  const phHide=prefs.hidePh?' quiz-reveal-hidden ph-deferred':'';
   let qh;
   if(q.direction==='th2jp'){
-    qh=`<div class="quiz-question"><div class="quiz-prompt">タイ語 → 日本語</div><div class="quiz-thai" id="quiz-thai">${escapeHtml(sent.th)}</div><div class="quiz-ph-small">${escapeHtml(sent.ph)}</div></div>`;
+    qh=`<div class="quiz-question"><div class="quiz-prompt">タイ語 → 日本語</div><div class="quiz-thai" id="quiz-thai">${escapeHtml(sent.th)}</div><div class="quiz-ph-small${phHide}">${escapeHtml(sent.ph)}</div></div>`;
   }else if(q.direction==='jp2th'){
     qh=`<div class="quiz-question"><div class="quiz-prompt">日本語 → タイ語</div><div class="quiz-jp">${escapeHtml(sent.jp)}</div></div>`;
   }else{
@@ -1312,7 +1461,7 @@ function renderQuizQ(){
   const optsHtml = opts.map(o=>{
     const correct = o.idx===cur.idx ? '1' : '0';
     return q.direction==='jp2th'
-      ? `<button class="quiz-option" data-correct="${correct}"><div class="opt-thai">${escapeHtml(o.s.th)}</div><div class="opt-ph">${escapeHtml(o.s.ph)}</div></button>`
+      ? `<button class="quiz-option" data-correct="${correct}"><div class="opt-thai">${escapeHtml(o.s.th)}</div><div class="opt-ph${phHide}">${escapeHtml(o.s.ph)}</div></button>`
       : `<button class="quiz-option" data-correct="${correct}"><div class="opt-jp">${escapeHtml(o.s.jp)}</div></button>`;
   }).join('');
   const oh = `<div class="quiz-options">${optsHtml}</div><button class="quiz-next-btn" id="quiz-next-btn">次の問題へ</button>`;
@@ -1335,6 +1484,7 @@ function renderQuizQ(){
       const correct = opt.dataset.correct==='1';
       $$('.quiz-option').forEach(o=>{o.classList.add('disabled'); if(o.dataset.correct==='1') o.classList.add('correct');});
       if(!correct) opt.classList.add('wrong');
+      $$('.ph-deferred').forEach(x=>x.classList.remove('quiz-reveal-hidden'));
       if(q.direction==='jp2th') speak(sent.th, 0.75);
       if(q.direction==='listen'){
         // 答え合わせ時にタイ語表記を開示し、もう一度聞かせて音と文字を結び付ける
@@ -1344,7 +1494,8 @@ function renderQuizQ(){
         t.addEventListener('click',()=>playWithHighlight(t, sent.th, 0.75));
         speak(sent.th, 0.75);
       }
-      if(correct){ q.correct++; q.answers.push('correct'); gradeSrs(state.course,state.unit,cur.idx,4); }
+      // 4択は当て推量でも25%正解するので、正解だけでは未学習の文を学習済みにしない
+      if(correct){ q.correct++; q.answers.push('correct'); if(progress.srs[sentKey(state.course,state.unit,cur.idx)]) gradeSrs(state.course,state.unit,cur.idx,4); }
       else      { q.answers.push('wrong');   gradeSrs(state.course,state.unit,cur.idx,1); }
       $('quiz-next-btn').classList.add('show');
     });
@@ -1391,7 +1542,7 @@ $$('.mode-tab').forEach(t=>t.addEventListener('click',()=>{
   t.classList.add('active');showMode(t.dataset.mode);
 }));
 $('flashcard').addEventListener('click',(e)=>{
-  if(e.target.id==='fc-thai'){
+  if(e.target.id==='fc-thai' && !(prefs.rev && !state.cardFlipped)){
     // Use the current deck item — in review mode state.cardIdx indexes the queue, not u.sentences.
     const item=currentItem();
     if(!item) return;
@@ -1406,6 +1557,16 @@ $('flashcard').addEventListener('keydown',(e)=>{
   flipCard();
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAll();});
+$('pref-ph').addEventListener('click',()=>{
+  prefs.hidePh=!prefs.hidePh;savePrefs();renderPrefs();
+  // 再描画すると音声が鳴り直すので、表記の表示だけ切り替える
+  if(isCardMode() && !state.completed)
+    $('fc-ph').classList.toggle('fc-hidden',!state.cardFlipped&&(prefs.rev||prefs.hidePh));
+});
+$('pref-dir').addEventListener('click',()=>{
+  prefs.rev=!prefs.rev;savePrefs();renderPrefs();
+  if(isCardMode() && !state.completed){ state.cardFlipped=false; renderCard(); }
+});
 $('course-audio-btn').addEventListener('click',()=>{ if(state.course) downloadCourseAudio(state.course); });
 $('export-btn').addEventListener('click',exportProgress);
 $('import-btn').addEventListener('click',()=>$('import-file').click());
