@@ -7,7 +7,7 @@
 //   - Other static (icon.svg, manifest.json): cache-first
 // Bump VERSION whenever shell assets change so old caches get evicted.
 
-const VERSION = 'v8';
+const VERSION = 'v9';
 const SHELL_CACHE = 'thai-shell-' + VERSION;
 // data/font/audio は VERSION に連動させない:
 //  - audio: ファイル名がハッシュ化&immutableなので更新の概念がなく、
@@ -15,9 +15,11 @@ const SHELL_CACHE = 'thai-shell-' + VERSION;
 //  - data:  stale-while-revalidate が鮮度を担保する
 //  - font:  Google Fontsのバイナリは実質不変
 // "-v6" は旧命名の名残 — 既存ユーザーのキャッシュを引き継ぐため据え置き。
+// audio だけは v7: 全音声を Gemini TTS に作り直してファイル名ごと変わったため、
+// 二度と参照されない旧 Chirp 音声のキャッシュ(最大33MB)を activate で消す。
 const DATA_CACHE  = 'thai-data-v6';
 const FONT_CACHE  = 'thai-font-v6';
-const AUDIO_CACHE = 'thai-audio-v6';
+const AUDIO_CACHE = 'thai-audio-v7';
 
 const SHELL_URLS = [
   './',

@@ -829,7 +829,7 @@ function getUnitDueItems(c,uid){
 function getUnitDueCount(c,uid){return UNIT_INDEX[c+'/'+uid]?getUnitDueItems(c,uid).length:0;}
 function getGlobalDueCount(){return getAllDueItems().length;}
 
-// TTS - Chirp 3: HD MP3再生 + Web Speech APIフォールバック
+// TTS - Gemini 3.8 Flash TTS の MP3再生 + Web Speech APIフォールバック
 let thaiVoice = null;
 let audioManifest = null;
 let manifestLoaded = false;
@@ -868,12 +868,12 @@ function stopAll(){
 function speak(text, rate, onEnd){
   stopAll();
   
-  // Chirp 3 HD MP3を優先使用
+  // 生成済みMP3を優先使用
   if(audioManifest && audioManifest[text]){
     try{
       const audio = new Audio(AUDIO_BASE + audioManifest[text]);
       // rate: 0.5 = ゆっくり再生(復習用), 1.0 = ネイティブ速度
-      // Chirp 3生成時は既に0.9で生成しているので、ここでさらに調整可能
+      // MP3は普段の速さで生成済み。ここで再生速度だけ調整する
       audio.playbackRate = rate ? Math.max(0.5, Math.min(2, rate / 0.85)) : 1.0;
       audio.preservesPitch = true; // 音程を維持
       currentAudio = audio;
@@ -916,7 +916,7 @@ function speakFallback(text, rate, onEnd){
 }
 
 function showVoiceNotice(el){
-  // Chirp 3 HD音声があれば通知不要
+  // 生成済みMP3があれば通知不要
   if(audioManifest){el.innerHTML='';return;}
   if(!('speechSynthesis' in window)){
     el.innerHTML='<div class="notice">この端末は音声に対応していません。テキスト学習のみご利用いただけます。</div>';
@@ -925,7 +925,7 @@ function showVoiceNotice(el){
   setTimeout(()=>{
     if(audioManifest){el.innerHTML='';return;}
     if(!thaiVoice){
-      el.innerHTML='<div class="notice">高品質音声(Chirp 3 HD)を読み込み中...または、お使いの端末にタイ語音声がない場合はテキストのみで学習できます。</div>';
+      el.innerHTML='<div class="notice">高品質音声を読み込み中...または、お使いの端末にタイ語音声がない場合はテキストのみで学習できます。</div>';
     }else{
       el.innerHTML='';
     }
@@ -1579,7 +1579,7 @@ $('import-file').addEventListener('change',(e)=>{
 // INIT
 if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
 initVoices();
-loadManifest();  // Chirp 3 HD MP3マニフェストを読み込み
+loadManifest();  // 音声MP3マニフェストを読み込み
 loadCourses().then(renderHome).catch(err=>{
   console.error('Failed to load courses:',err);
   const list=$('course-list');
